@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRUMPF WC2026 · Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --trumpf-blue:   #0133BA;
+  --trumpf-navy:   #001A6E;
+  --trumpf-mid:    #1A4AB5;
+  --trumpf-light:  #E8EDF9;
+  --trumpf-pale:   #F4F6FC;
+  --trumpf-bright: #00A8E0;
+  --white:         #FFFFFF;
+  --off-white:     #F0F4FF;
+  --text:          #1A1A2E;
+  --muted:         #6B7FA8;
+  --border:        #C8D4F0;
+  --gold:          #F5A623;
+  --live:          #00C851;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--off-white);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{
+  background:var(--trumpf-navy);
+  border-bottom:3px solid var(--trumpf-blue);
+  overflow:hidden; position:relative;
+}
+header::before{
+  content:''; position:absolute; bottom:-50px; left:50%; transform:translateX(-50%);
+  width:700px; height:100px; border:2px solid rgba(255,255,255,0.05); border-radius:50%;
+}
+.header-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px; min-height:80px; position:relative; z-index:2;
+}
+.trumpf-logo{display:flex;align-items:center;gap:12px;}
+.trumpf-wordmark{height:30px;}
+.logo-divider{width:2px;height:36px;background:linear-gradient(to bottom,transparent,var(--trumpf-blue),transparent);}
+.logo-text h1{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.12em;color:var(--white);line-height:1;}
+.logo-text p{font-size:0.65rem;color:var(--trumpf-bright);letter-spacing:0.2em;text-transform:uppercase;margin-top:2px;}
+.back-btn{color:var(--trumpf-bright);text-decoration:none;border:1.5px solid var(--trumpf-blue);padding:7px 16px;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;transition:0.2s;text-transform:uppercase;}
+.back-btn:hover{background:var(--trumpf-blue);color:var(--white);}
+.deco-bar{background:var(--trumpf-blue);padding:5px 28px;font-size:0.68rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;display:flex;align-items:center;gap:10px;}
+
+/* ── NAV ── */
+.admin-nav{background:var(--white);border-bottom:2px solid var(--trumpf-blue);display:flex;padding:0 24px;overflow-x:auto;box-shadow:0 2px 6px rgba(1,51,186,0.07);}
+.anav-tab{padding:12px 18px;font-size:0.76rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:0.2s;margin-bottom:-2px;}
+.anav-tab.active{color:var(--trumpf-blue);border-bottom-color:var(--trumpf-blue);}
+.anav-tab:hover{color:var(--trumpf-navy);}
+
+main{padding:24px 28px 48px;max-width:1100px;margin:0 auto;}
+.panel{display:none;}.panel.active{display:block;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.12em;color:var(--trumpf-navy);border-left:5px solid var(--trumpf-blue);padding-left:12px;margin-bottom:18px;}
+
+/* ── GOOGLE SHEET SETUP ── */
+.setup-banner{
+  background:linear-gradient(135deg,var(--trumpf-navy) 0%,var(--trumpf-mid) 100%);
+  border-radius:10px; padding:24px 28px; margin-bottom:24px; color:var(--white);
+  position:relative; overflow:hidden;
+}
+.setup-banner::after{content:'⚽';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:4rem;opacity:0.1;}
+.setup-banner h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.1em;margin-bottom:8px;color:var(--trumpf-bright);}
+.setup-banner p{font-size:0.8rem;line-height:1.7;color:rgba(255,255,255,0.8);}
+.setup-banner ol{margin:10px 0 0 18px;font-size:0.8rem;color:rgba(255,255,255,0.8);line-height:2;}
+.setup-banner a{color:var(--trumpf-bright);}
+
+.sheet-url-row{display:flex;gap:10px;align-items:stretch;margin-top:14px;}
+.sheet-url-row input{flex:1;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);color:var(--white);padding:10px 14px;border-radius:5px;font-size:0.82rem;outline:none;transition:border-color 0.2s;}
+.sheet-url-row input::placeholder{color:rgba(255,255,255,0.35);}
+.sheet-url-row input:focus{border-color:var(--trumpf-bright);}
+
+/* ── CARDS ── */
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+@media(max-width:680px){.setup-grid{grid-template-columns:1fr;}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(1,51,186,0.05);}
+.card h3{font-size:0.82rem;color:var(--trumpf-blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.locked-badge{background:var(--trumpf-blue);color:var(--white);padding:2px 8px;border-radius:3px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;}
+
+textarea,input[type=text]{width:100%;background:var(--trumpf-pale);border:1.5px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.83rem;resize:vertical;outline:none;transition:border-color 0.2s;}
+textarea:focus,input:focus{border-color:var(--trumpf-blue);}
+textarea{min-height:150px;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:none;border-radius:5px;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:0.2s;text-transform:uppercase;font-family:'Inter',sans-serif;}
+.btn-blue{background:var(--trumpf-blue);color:var(--white);}
+.btn-blue:hover{background:var(--trumpf-navy);}
+.btn-outline{background:transparent;border:1.5px solid var(--trumpf-blue);color:var(--trumpf-blue);}
+.btn-outline:hover{background:var(--trumpf-blue);color:var(--white);}
+.btn-gold{background:var(--gold);color:var(--white);}
+.btn-gold:hover{background:#D4891A;}
+.btn-danger{background:#7C1D1D;color:#FECACA;border:none;}
+.btn-danger:hover{background:#991B1B;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.hint{font-size:0.72rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+.assign-preview{background:var(--trumpf-pale);border:1px solid var(--border);border-radius:6px;padding:10px;max-height:280px;overflow-y:auto;font-size:0.78rem;margin-top:10px;}
+.ap-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);}
+.ap-row:last-child{border-bottom:none;}
+.ap-team{font-weight:600;color:var(--text);}
+.ap-players{color:var(--trumpf-mid);font-size:0.71rem;}
+
+/* ── RESULTS ── */
+.res-section{margin-bottom:28px;}
+.res-group-badge{display:inline-block;background:var(--trumpf-navy);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;padding:5px 14px;border-radius:4px;margin-bottom:10px;border-left:4px solid var(--trumpf-blue);}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;}
+.res-match{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;box-shadow:0 1px 4px rgba(1,51,186,0.04);}
+.res-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.res-teams{font-size:0.8rem;font-weight:600;color:var(--text);}
+.res-date{font-size:0.68rem;color:var(--muted);}
+.score-row{display:flex;align-items:center;gap:8px;}
+.score-inp{width:46px;text-align:center;padding:6px 4px;border-radius:4px;background:var(--trumpf-pale);border:1.5px solid var(--border);color:var(--trumpf-navy);font-family:'Bebas Neue',sans-serif;font-size:1.3rem;outline:none;transition:border-color 0.2s;}
+.score-inp:focus{border-color:var(--trumpf-blue);}
+.score-dash{color:var(--muted);}
+.save-btn{padding:5px 12px;background:var(--trumpf-light);border:1.5px solid var(--trumpf-blue);color:var(--trumpf-blue);border-radius:4px;font-size:0.7rem;cursor:pointer;font-weight:700;transition:0.2s;font-family:'Inter',sans-serif;text-transform:uppercase;}
+.save-btn:hover{background:var(--trumpf-blue);color:var(--white);}
+.saved-tick{font-size:0.7rem;color:var(--live);display:none;}
+.saved-tick.vis{display:inline;}
+
+/* KO result rows */
+.ko-match{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(1,51,186,0.04);}
+.ko-title{font-size:0.72rem;color:var(--muted);letter-spacing:0.05em;margin-bottom:8px;}
+.ko-teams{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ko-name{font-weight:600;color:var(--text);font-size:0.83rem;min-width:90px;}
+.ko-name.tbd{color:var(--muted);font-style:italic;}
+
+/* Standings dropdowns */
+.standings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+.st-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px;box-shadow:0 1px 4px rgba(1,51,186,0.04);}
+.st-card h4{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--trumpf-blue);letter-spacing:0.1em;margin-bottom:10px;}
+.st-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--trumpf-light);}
+.st-row:last-child{border-bottom:none;}
+.pos-badge{width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--muted);font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pos-1{background:var(--gold);color:var(--white);}
+.pos-2{background:#9CA3AF;color:var(--white);}
+.pos-3{background:#B45309;color:var(--white);}
+sel{background:var(--trumpf-pale);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:4px;font-size:0.75rem;flex:1;outline:none;}
+
+/* Danger zone */
+.danger-zone{background:#FFF7ED;border:1.5px solid #F59E0B;border-radius:8px;padding:18px 20px;margin-top:28px;}
+.danger-zone h3{color:#B45309;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.danger-zone p{font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--trumpf-navy);color:var(--white);padding:12px 20px;border-radius:6px;border-left:4px solid var(--trumpf-blue);font-size:0.82rem;font-weight:600;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,30,0.25);}
+.toast.show{opacity:1;}
+
+::-webkit-scrollbar{height:5px;width:5px;}
+::-webkit-scrollbar-track{background:var(--trumpf-light);}
+::-webkit-scrollbar-thumb{background:var(--trumpf-mid);border-radius:3px;}
+</style>
+
+<style>
+#pw-overlay{position:fixed;inset:0;background:#001A6E;z-index:9999;display:flex;align-items:center;justify-content:center;}
+#pw-box{background:#ffffff;border-radius:10px;padding:40px;text-align:center;width:320px;box-shadow:0 8px 32px rgba(0,0,30,0.4);}
+#pw-box img{height:44px;margin-bottom:20px;}
+#pw-box h2{font-family:'Inter',sans-serif;font-size:1rem;color:#001A6E;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+#pw-box p{font-size:0.8rem;color:#6B7FA8;margin-bottom:20px;}
+#pw-input{width:100%;padding:10px 14px;border:1.5px solid #C8D4F0;border-radius:6px;font-size:1rem;text-align:center;letter-spacing:0.15em;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;}
+#pw-input:focus{border-color:#0133BA;}
+#pw-btn{margin-top:12px;width:100%;padding:11px;background:#0133BA;color:#ffffff;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;}
+#pw-btn:hover{background:#001A6E;}
+#pw-error{color:#dc2626;font-size:0.78rem;margin-top:8px;display:none;}
+</style>
+</head>
+<body>
+<div id="pw-overlay">
+  <div id="pw-box">
+    <img src="data:image/png;base64,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" alt="TRUMPF">
+    <h2>Admin Access</h2>
+    <p>World Cup 2026 Sweepstake<br>Enter the admin password to continue</p>
+    <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button id="pw-btn" onclick="checkPw()">Enter</button>
+    <p id="pw-error">Incorrect password — try again</p>
+  </div>
+</div>
+<script>
+function checkPw(){
+  const pw = document.getElementById('pw-input').value;
+  if(pw === 'Trumpf2026'){
+    document.getElementById('pw-overlay').style.display='none';
+    sessionStorage.setItem('wc_admin_auth','1');
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+// Stay unlocked for the session
+if(sessionStorage.getItem('wc_admin_auth')==='1'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const ov=document.getElementById('pw-overlay');
+    if(ov) ov.style.display='none';
+  });
+}
+</script>
+
+
+<header>
+  <div class="header-inner">
+    <div class="trumpf-logo">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACaAKQDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAgJBgcBAgUDBP/EAFcQAAECBQEDBAwHCggPAAAAAAEAAgMEBQYRBwghMRJBUXETFRciN1VhlJWz0dIJFCdWdYG0FiUoMjZGcpGhwRhCYmWksbLCIyQ1Q0RFVGNzdIKFoqPw/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAEFBgcE/8QAMREAAQEDCQgCAQUAAAAAAAAAAAECAwUEBhEVFjEzU3I0UVKhorHB0SEkI0FhceHw/9oADAMBAAIRAxEAPwCY5OBwJ6gsYnNRLBkJyNJVC97Zk5qA8w4sGPVYLHw3jcWlrnAggrJ3DI5/qCgLtEbPd+tuW9tRnxKKyiunJmoAfGz2YwnRCW97yMcogjdlATNOp+moGe6HaJHP9+pf316MpeNqTdGjVuTuWjTNLgEtjzsKehPgQju3OiBxaOI5+dVaaXWFW9Rbrh23QHyjZ58F8YfGYhhtDW4zvAO/epZyGnFx6Y7IF/0a5jJOmo8T4yz4rFMRhYTBAySBvyCgJEd03TfeDqDaYxx+/Mv769Gh3da1eLm0K5KNVi0ZcJKfhRsDp71xVXGkun9d1Mun7mbdiSMKdEu+Z5U3EMNga0gHeGk574L1tTNOL40auKR7dRIctMRMxpOfpsySOU3dlj8BzSD5AgLQqjUZKmyMWeqEzBk5SE3lRI8eIGQ2Dpc4nAC8mi3zZdbqIptEu2gVSeLS8S0nUoMaKWji7kNcTjy4WgKbfU9qDsV3BWqs5r6rLyT5WaeP845j2gPd5XDBK0bsEu/CAgN347WTPP8AooCftwXHQrelmTNfrNNpMCI7kMizs2yAxx6A5xAJ8i60K5rfr8KNFoNbplXhwSGxXyM2yM1hO/BLSQN3lUcPhFgG6c2+QBnti4Z6O8HBfh+Df32ddeN33whZ3cf8GgJDzGpencvHfLzF+WrBjMcWvhvrEu1zSOIILs58iyCkVSn1eQhz9LnpSelIozCjy0dsWG8dIc0kFVK30cXzXRnAFSmOH/EcpvfB/XU6raYT1ux4r3RaRNkwwXZxCiDIA8gI/agJBV+5rft+HCiV6t0ykw4pxDfOzcOA15xvALyMlflo18WbW6g2n0S7bfqk44FzYEnUoMaIQN5IaxxOAN+VCr4Qa5xVNTKdbcGIHwqXJ8qIGAEdkiHOOkEAdPOsa2E2D+ERTMj/AEOa9UUBP2uXnaNBnBJ126aHSphzOWIU7UIUF5bwzhzhuX4e6bpuThmoNpPceDRWZfJ/81C34QvPdjkGneBSYZ6u+csJtbZ41FuPT6BfVGlaZOU2NCdFhwWzJEd7Wkg97jHMedAWWyk3Am5ZkzLRYceDEbymRIb+U1w6QRxHlXi1m+bKos86QrN4W9TZtoDnQJupQYUQA8CWucCoFbG2pFXtPVKmWzEmYsSh1qYbKRpV2XNZHfuZEaD+K4HAPkyvz7cwztBVLlbnGUl/7JQE8Dqfprjwh2j6al/fWRUaqU6s0+HUaTPSs/JRc9imJaKIkN+CQcObuOCCPqVdFn7LupV0WzT7hpsegfE5+CI0ERp0tfyTwyORuU4dnW0arYmjlAtOtul3VCQbHEYy7+XDPLjxHjDsDmeEBsJERAcOGRg5x5Dha62k92hF448WxD+shbFWutpTwEXiN3+TX/1hAQt2DznaAlRjd2vmP7qmTtUZGz1eOTnEm31rFDbYQGNf5Y8cU+Y6/wCKpkbVJ/B8vHIwDJMP/tYgIH7L+oVF0y1L+6avStQmpMyMWW7HJNYYnKcWkHv3tGO9POvd2n9ZoWsVdpcvRKROStMkGuEBswAZiPEfgEkMyBzAAF3XvWN7Omn8rqXeFStePEdBmHUiPHk4oOAyOxzOSXfyd5B688y+2ld0VXRXV34xWaPCimTjGWqMrHhN7I1ucF0MkHkuHEHnHXlASUtKzKlZWxHcklWYD5aoTspEm4sB4IfDDnN5IcDwdjGRzLTGwSfwgYON+KZM/wB1TNv2JK6jaG1h9tTTZ6FVqU90o9g5RibuUGgDfk4xjpVeuiF9x9KNTJa5IlNM58XESXmJUv5Dy125wacEBwI6kBKr4RZwdpvb5G/74uxjeD3gX4vg3PyPuwfzhC9WtO7UGvUrq7J0yk0miTVMkpKK6O901EDokR5GMYbuAGOlb8+D5t+dpGllSrE1CdDhVWe7JA5QILmsbyc45wTwPBARWsikwK9tIiiTLWOhVCtTMu4P4d854B/XhZ9sgVx+n20BULbqUQwpaZbHkY2dx5UMlzTj/pWKaRNI2taUS13J+6WLnccHv3r3dtS3Jm0dd49Zpz4ssyrQmzsKJDy3ETHJfj9n60B8rUg91DaDuu456D8YlJeHOT7iBlgENhbCPUcD6112ES07RFMwCMSU1z/7orZuxvahk9E74vCYhhr6jLxZSC8ggiHDYS4dRcR+pay2EBjaHpn/ACU16ooD3PhDBnWSQ+iYf9py8+xtpyvWhpNJ2FSbakOyy0B8GFUo0dzsF7nO5XYw3iOV08y9D4QnLtZJAtGcUmHzfy3LbOzdoPpRdmjNt3HcFptnqpNwXujxzOzLA8iK8AlrYgbwAHDmQGgNkCx6neGtdKqsKFEMlRo7alNzHBjXMOWNycZLngDA34yeYr7bcxxtCVPOCfikvno/FKsEte2KBalKZTLdpMpTJFhLuwS0IMa52Mco43udu4kk/sVfe3NkbQlTJ3f4pA5uPelAYpQdctWaHR5Wj0e85+UkJWGIUCAyFDIhsHADLD/Wp+bLlwVm6dCrbrtwz8WfqcyyYMaYigB7+TMRGjOMfxQBw5l99m9gdoVZ+Rn72M3kDjvWxGtDeG4ZzgcEB2RcZ8iIDlx3cF4t30Gn3XbE/b1XbEMjPwTBjiFELXck8cEcF7EQZb9fQq9tZ6lUWauXXBh1CcYxtVmA1rZh7QAIhwAAcK1hEKaib5XTLVFHyeWVSpJOzSqEsNNtANOtP7oh3JbctUYU/DhPhB0abdEbh3HcR5Fn1723TLwteftutCM6QnmBkYQohY7k8oO3EeUBVxmqVQf6zn/OontXHbWqeM57zqJ7VpEmQ+zeX9ngWMM/oyTj0v0G0+05uU3DbcCosnzLuly6Ym3RG8lxBO7HHvRvXOpugunWodxNuC4pCa7Y9iEOJFlY5g9lxuBdgbyBu+pQb7a1TxnP+dRPanbWqeM57zqJ7UsQ9zelfYrhOEsD0r03t/TalR6VbcxVfiMaJ2TsE1Nuithu5ywH8XPErC9UtmvTS/arGrExLz1GqUd3Kjx6ZEbDEZ3S5jmubnpIAJ5yoYdtap4zn/OontTtrVPGc951E9qmxD3N6V9iuE4SVltbH2llKqDJuemq9WQwgiBNTDGwiR0iGxrj+tSAp0jKU+QgyElAhS0tBYIcKFBbyGMaBwaBwCrT7a1TxlP+dRPanbWp+Mp/zqJ7UsQ9zelfYrhOEmvQdnPTWiXvAvGQl6mKrAmzOQ3PnC5nZCSSS3G8bzuWQataRWXqg6SddctNxHyXK7A+XjmG4B3EE4OQoEdtan4yn/OontTtrVPGc/51E9qWIe5vSvsVwnCWH27YtvUCwW2RTIMaFSGwHwMGKeyFrs5Jd07+Kw/TbZ/070+uuBc1uQKlDqMFj2NdGnHRGkPbh2QRv3KEHbWqc9Tn/OontTtrU+apT/nUT2qLEPc3pX2K4ThJz6paFWDqTcLK7c8GoxJ1kBsAGBNGG3kAkjdjylZpYVr0mybTkbYobYzafItc2CIry92C4uOTz7yVXJ21qnjOe86ie1O2tU8Zz3nUT2pYh9m9K+yK4ThLOOV0ftWo9SNnvTu/7qj3NcMKpPn47GMeYM3yG4aMDAwcKEfbWp+M5/zqJ7U7a1PxnP8AnUT2pYh7m9K+ya4ThLIbPoVOtS2afb1LEX4lT4IgQBEdy3Bo6SvXY8OGWjIVYzqrUy0g1Kf4f7VE9qnXstRIkfQq240eI+LFLZjL3u5TjiYijeTv4KpjM3XkMcsvWm6UVaLqN56pJLklDSpRQbQz5EQIs2lx7jh3D61XVrWcaw3b9LTHrHKxV3AdYVdWto+V+7T/ADtMesctlMxPsvNPkqovhIYfx3onMi6Vd8GdCIiigBERKAEREoARESgBERSAiIgCIiigDGc9SnrsqD5A7a/RmPtMVQKHP1Ke2yp4A7a/RmPtMVY+eafTY1J2Ut4Ov5VNoIiLmiqpoKDh3N1qurW0/K/dv0tMescrFTzdarp1t8L92fS0x6xy2czNpeafJUxjDZMQ5kTmRdKW8zwREUAIiIAiIgCIiAIiIAiIgCIiAD9yntsqeAS2v0Zj7TFUCW8VPbZU8Alt9Ux9pirHTz2NjUnZS2hGKptBERcyW80Rw7m61XTrb4YLt+lpj1jlYs7gOtV062+GG7vpaY9Y5bWZm0vNPkqYvhsmIcyIi6Ut5nQiIoAREQBERAEREAREQBERAEREAG5T12VD8gltdUx9piqBQ51PXZUHyB211TB/pMVY6eexsak7KW0IxVNooiLmS3miOHcB1qunW3ww3b9LTHrHKxY/vVdOtvhgu36WmPWOW0mZtLzT5QqYvhsmIcyJzIulreZ0IiKAEREAREQBERAEREAREQBERABz9SntsqeAO2v0Zj7TFUCR+5T22VPAHbQ/kzH2mKsdPPY2NSdlLaD4q/wbRx5UXXHlRcyW80QdwHWq6dbfDBdv0tMescrFncB1hV1a2j5X7tP87THrHLaTM2l5p8oVEYw2TD+ZE5kXS1vM8ERFACIiAIiIAiIgCIiAIiIAiIgA/cp7bKngEtr9GY+0xVAkc6nrsqH5A7a6pgf0mKsdPPY2NSdlLaEYqm0URFzJbzRHDubrVdWtp+V+7fpaY9Y5WKu5utV062+GC7fpaY9Y5bWZm0vNPkqIxhsmIcyJzIulLeZ4IiKAEREAREQBERAEREAREQBEQDJQAKeuyp4BLa6pn7TFUDAOO/mU9NlPfoJbXVMfaYqx089jY1J2UtoPiqbQRc48qLmS3miOjycDdzhQJ1fsq85/VW6JySs+45mXjVOO+FGhUuM9j2l5ILSGkEKe0f8AE/8AuhdIRJG/fuHFXEJijyHPVeMJTSlHyeWVyZl+wiNFcfc/v7H5C3Sf+zzHuLjuf398xLq9DzHuKyB+4bl1yelX1tJVls8yvqt3vK4e5/f3zEur0PMe4nc/v75iXV6HmPcVj2T0pk9KW0lWWzzFVu95XENP7+P5i3V6HmPcQ6fX8PzFun0PMe4rHmcV2fwS2kqy2eYqt3vK3u5/f3zEur0PMe4g0/v75iXV6HmPcVj2T0o3iltJVls8xVbveVxHT6/vmLdXoeY9xcdz+/vmJdXoeY9xWQO4Lrk9KW0lWWzzFVu95XD3P7++Yl1eh5j3E7n9/fMS6vQ8x7iseyelMnpS2kqy2eYqt3vK4hp/fx/MW6vQ8x7iHT6/h+Yt0+h5j3FY83iuzvxUtpKstnmKrd7yt4af398xLq9DzHuLsNPr+B/IW6vQ8x7iscbxXcJbSVZbPMVW73lcP3AX6Ac2LdPoiP7imtsyyNQpmiNvyFTkJmQm4TY/ZIExDMOIzMxEcMtO8biD9a2O/h9YXyhkmLjJxj9wVVF5wPoi5R22yiULT8f79z1SORsOG6WT7b0XJRUKIh71U//Z" alt="TRUMPF" style="height:30px;width:auto;display:block;">
+      <div class="logo-divider"></div>
+      <div class="logo-text">
+        <h1>Sweepstake Admin</h1>
+        <p>World Cup 2026 · TRUMPF Great Britain</p>
+      </div>
+    </div>
+    <a href="wc2026-bracket.html" class="back-btn">← Main Bracket</a>
+  </div>
+  <div class="deco-bar">⚽ &nbsp; TRUMPF Great Britain &nbsp;·&nbsp; World Cup 2026 Sweepstake &nbsp;·&nbsp; Admin Panel &nbsp; ⚽</div>
+</header>
+
+<div class="admin-nav">
+  <div class="anav-tab active" data-panel="setup">⚙ Setup</div>
+  <div class="anav-tab" data-panel="sheet">🔗 Google Sheet</div>
+  <div class="anav-tab" data-panel="standings">📊 Group Standings</div>
+  <div class="anav-tab" data-panel="results-group">⚽ Group Results</div>
+  <div class="anav-tab" data-panel="results-ko">🏆 Knockout Results</div>
+</div>
+
+<main>
+
+<!-- ═══ SWEEPSTAKE SETUP ═══ -->
+<div class="panel active" id="panel-setup">
+  <div class="section-title">Sweepstake Setup</div>
+  <div class="setup-grid">
+    <div class="card">
+      <h3>👥 Participant Names <span id="locked-indicator" style="display:none"><span class="locked-badge">🔒 LOCKED</span></span></h3>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.6">Enter one name per line. All 48 teams will be randomly distributed across your participants.</p>
+      <textarea id="names-input" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Sarah&#10;..." oninput="saveNamesDraft()"></textarea>
+      <p class="hint">One name per line. Each person gets one team. More than 48 people = some teams are shared.</p>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-blue" id="btn-assign" onclick="assignTeams()">🎲 Randomly Assign Teams</button>
+        <button class="btn btn-outline" id="btn-unlock" onclick="unlockAssignments()" style="display:none">🔓 Unlock & Edit</button>
+        <button class="btn btn-danger" id="btn-clear-assign" onclick="clearAssignments()" style="display:none">🗑 Clear All Assignments</button>
+      </div>
+      <p class="hint" id="assign-hint" style="margin-top:8px;color:var(--trumpf-blue);font-weight:600;"></p>
+    </div>
+    <div class="card">
+      <h3>📋 Assignments Preview</h3>
+      <div class="assign-preview" id="assign-preview">
+        <p style="color:var(--muted);padding:8px 0;font-size:0.78rem">No assignments yet — enter names and click assign.</p>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-gold" onclick="saveAssignments()">💾 Save & Lock Assignments</button>
+      </div>
+    </div>
+  </div>
+  <div class="danger-zone">
+    <h3>⚠ Danger Zone</h3>
+    <p>Reset ALL data — assignments and manually entered results. The Google Sheet will continue updating independently. This action cannot be undone.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-danger" onclick="resetAll()">🗑 Reset All Local Data</button>
+      <button class="btn btn-outline" onclick="injectTestScores()" style="border-color:#F5A623;color:#F5A623;">🧪 Inject Test Scores</button>
+      <button class="btn btn-outline" onclick="clearTestScores()" style="border-color:#F5A623;color:#F5A623;">🧹 Clear Test Scores</button>
+    </div>
+    <p class="hint" style="margin-top:8px;">Test buttons inject fake results so you can verify the bracket populates correctly all the way to the Final. Clear them when done.</p>
+  </div>
+</div>
+
+<!-- ═══ GOOGLE SHEET ═══ -->
+<div class="panel" id="panel-sheet">
+  <div class="section-title">Google Sheet Auto-Score Setup</div>
+  <div class="setup-banner">
+    <h2>🤖 Auto-Updating Scores</h2>
+    <p>Once configured, this sweepstake updates itself — even while you're on holiday! Scores are fetched from <strong>football-data.org</strong> (free API) into a Google Sheet, and the pages read from it every 5 minutes.</p>
+    <ol>
+      <li>Register for a free API key at <a href="https://www.football-data.org/client/register" target="_blank">football-data.org</a> (takes 2 minutes)</li>
+      <li>Create a new Google Sheet, go to <strong>Extensions → Apps Script</strong></li>
+      <li>Paste the entire contents of <strong>wc2026-sheet-script.js</strong> (included in the download)</li>
+      <li>Edit the <code>API_KEY</code> constant at the top with your key</li>
+      <li>Run <strong>setupSheet</strong> first, then <strong>createHourlyTrigger</strong></li>
+      <li>Publish the sheet: <strong>File → Share → Publish to web → Matches sheet → CSV</strong></li>
+      <li>Paste the published URL below and click Save</li>
+    </ol>
+    <div class="sheet-url-row">
+      <input type="text" id="sheet-url-input" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv">
+      <button class="btn btn-gold" onclick="saveSheetUrl()">💾 Save URL</button>
+      <button class="btn btn-outline" style="border-color:rgba(255,255,255,0.4);color:white;" onclick="testSheetUrl()">🔍 Test</button>
+    </div>
+    <p id="sheet-url-status" style="font-size:0.72rem;margin-top:8px;color:rgba(255,255,255,0.6);">
+      Current: <span id="current-url-display">Not set</span>
+    </p>
+  </div>
+  <div class="card">
+    <h3>ℹ️ How the auto-update works</h3>
+    <p style="font-size:0.8rem;line-height:1.8;color:var(--muted)">
+      ⏰ &nbsp;Google Apps Script runs <strong>every hour</strong> in the cloud — no PC needs to stay on<br>
+      📡 &nbsp;It calls football-data.org, gets all 104 match results as they happen<br>
+      📊 &nbsp;Results are written to your Google Sheet automatically<br>
+      🌐 &nbsp;Anyone opening the bracket page fetches the sheet and shows live scores<br>
+      ✈️ &nbsp;Works completely unattended — perfect for when you're on holiday!<br>
+      🔧 &nbsp;You can still manually override any result using the Results tabs below
+    </p>
+  </div>
+</div>
+
+<!-- ═══ STANDINGS ═══ -->
+<div class="panel" id="panel-standings">
+  <div class="section-title">Group Standings</div>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;line-height:1.6">
+    If the Google Sheet is connected, standings are calculated automatically from results. Use these dropdowns to manually override or set standings if needed. 1st = group winner, 2nd = runner-up.
+  </p>
+  <div class="standings-grid" id="standings-grid"></div>
+  <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-blue" onclick="saveStandings()">💾 Save Standings</button>
+  </div>
+  <div style="margin-top:28px;">
+    <div class="section-title" style="font-size:1.1rem;">Best 8 Third-Place Teams</div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.6">Rank the 8 best third-place finishers 1st through 8th — they fill the R32 third-place slots.</p>
+    <div id="third-place-inputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+    <div style="margin-top:12px;"><button class="btn btn-blue" onclick="saveThirdPlace()">💾 Save Third-Place Rankings</button></div>
+  </div>
+</div>
+
+<!-- ═══ GROUP RESULTS ═══ -->
+<div class="panel" id="panel-results-group">
+  <div class="section-title">Group Stage Results</div>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;">Manual override — if the Google Sheet is connected these come in automatically. Use this to correct any errors.</p>
+  <div id="group-results-container"></div>
+</div>
+
+<!-- ═══ KO RESULTS ═══ -->
+<div class="panel" id="panel-results-ko">
+  <div class="section-title">Knockout Results</div>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;">Manual override for knockout rounds. Teams auto-populate once group standings are set.</p>
+  <div id="ko-results-container"></div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GROUPS={
+  A:{teams:['Mexico','South Africa','South Korea','Czechia'],matches:[{id:'A1',home:'Mexico',away:'South Africa',date:'11 Jun'},{id:'A2',home:'South Korea',away:'Czechia',date:'11 Jun'},{id:'A3',home:'Mexico',away:'South Korea',date:'15 Jun'},{id:'A4',home:'Czechia',away:'South Africa',date:'18 Jun'},{id:'A5',home:'South Korea',away:'South Africa',date:'22 Jun'},{id:'A6',home:'Czechia',away:'Mexico',date:'22 Jun'}]},
+  B:{teams:['Canada','Bosnia & Herzegovina','Qatar','Switzerland'],matches:[{id:'B1',home:'Canada',away:'Bosnia & Herzegovina',date:'12 Jun'},{id:'B2',home:'Qatar',away:'Switzerland',date:'13 Jun'},{id:'B3',home:'Canada',away:'Qatar',date:'17 Jun'},{id:'B4',home:'Switzerland',away:'Bosnia & Herzegovina',date:'17 Jun'},{id:'B5',home:'Canada',away:'Switzerland',date:'21 Jun'},{id:'B6',home:'Bosnia & Herzegovina',away:'Qatar',date:'21 Jun'}]},
+  C:{teams:['Brazil','Morocco','Haiti','Scotland'],matches:[{id:'C1',home:'Brazil',away:'Morocco',date:'13 Jun'},{id:'C2',home:'Haiti',away:'Scotland',date:'13 Jun'},{id:'C3',home:'Brazil',away:'Haiti',date:'17 Jun'},{id:'C4',home:'Scotland',away:'Morocco',date:'17 Jun'},{id:'C5',home:'Brazil',away:'Scotland',date:'21 Jun'},{id:'C6',home:'Morocco',away:'Haiti',date:'24 Jun'}]},
+  D:{teams:['USA','Paraguay','Australia','Turkey'],matches:[{id:'D1',home:'USA',away:'Paraguay',date:'12 Jun'},{id:'D2',home:'Australia',away:'Turkey',date:'12 Jun'},{id:'D3',home:'USA',away:'Australia',date:'16 Jun'},{id:'D4',home:'Turkey',away:'Paraguay',date:'16 Jun'},{id:'D5',home:'USA',away:'Turkey',date:'25 Jun'},{id:'D6',home:'Paraguay',away:'Australia',date:'25 Jun'}]},
+  E:{teams:['Germany','Curaçao','Ivory Coast','Ecuador'],matches:[{id:'E1',home:'Germany',away:'Curaçao',date:'14 Jun'},{id:'E2',home:'Ivory Coast',away:'Ecuador',date:'14 Jun'},{id:'E3',home:'Germany',away:'Ivory Coast',date:'18 Jun'},{id:'E4',home:'Ecuador',away:'Curaçao',date:'18 Jun'},{id:'E5',home:'Germany',away:'Ecuador',date:'22 Jun'},{id:'E6',home:'Curaçao',away:'Ivory Coast',date:'22 Jun'}]},
+  F:{teams:['Netherlands','Japan','Sweden','Tunisia'],matches:[{id:'F1',home:'Netherlands',away:'Japan',date:'14 Jun'},{id:'F2',home:'Sweden',away:'Tunisia',date:'14 Jun'},{id:'F3',home:'Netherlands',away:'Sweden',date:'18 Jun'},{id:'F4',home:'Tunisia',away:'Japan',date:'18 Jun'},{id:'F5',home:'Netherlands',away:'Tunisia',date:'22 Jun'},{id:'F6',home:'Japan',away:'Sweden',date:'22 Jun'}]},
+  G:{teams:['Belgium','Egypt','Iran','New Zealand'],matches:[{id:'G1',home:'Belgium',away:'Egypt',date:'15 Jun'},{id:'G2',home:'Iran',away:'New Zealand',date:'15 Jun'},{id:'G3',home:'Belgium',away:'Iran',date:'19 Jun'},{id:'G4',home:'New Zealand',away:'Egypt',date:'19 Jun'},{id:'G5',home:'Belgium',away:'New Zealand',date:'23 Jun'},{id:'G6',home:'Egypt',away:'Iran',date:'23 Jun'}]},
+  H:{teams:['Spain','Cape Verde','Saudi Arabia','Uruguay'],matches:[{id:'H1',home:'Spain',away:'Cape Verde',date:'15 Jun'},{id:'H2',home:'Saudi Arabia',away:'Uruguay',date:'15 Jun'},{id:'H3',home:'Spain',away:'Saudi Arabia',date:'21 Jun'},{id:'H4',home:'Uruguay',away:'Cape Verde',date:'21 Jun'},{id:'H5',home:'Spain',away:'Uruguay',date:'25 Jun'},{id:'H6',home:'Cape Verde',away:'Saudi Arabia',date:'25 Jun'}]},
+  I:{teams:['France','Senegal','Iraq','Norway'],matches:[{id:'I1',home:'France',away:'Senegal',date:'16 Jun'},{id:'I2',home:'Iraq',away:'Norway',date:'16 Jun'},{id:'I3',home:'France',away:'Iraq',date:'20 Jun'},{id:'I4',home:'Norway',away:'Senegal',date:'20 Jun'},{id:'I5',home:'France',away:'Norway',date:'24 Jun'},{id:'I6',home:'Senegal',away:'Iraq',date:'24 Jun'}]},
+  J:{teams:['Argentina','Algeria','Austria','Jordan'],matches:[{id:'J1',home:'Argentina',away:'Algeria',date:'16 Jun'},{id:'J2',home:'Austria',away:'Jordan',date:'16 Jun'},{id:'J3',home:'Argentina',away:'Austria',date:'20 Jun'},{id:'J4',home:'Jordan',away:'Algeria',date:'20 Jun'},{id:'J5',home:'Argentina',away:'Jordan',date:'24 Jun'},{id:'J6',home:'Algeria',away:'Austria',date:'24 Jun'}]},
+  K:{teams:['Portugal','Congo DR','Uzbekistan','Colombia'],matches:[{id:'K1',home:'Portugal',away:'Congo DR',date:'17 Jun'},{id:'K2',home:'Uzbekistan',away:'Colombia',date:'17 Jun'},{id:'K3',home:'Portugal',away:'Uzbekistan',date:'21 Jun'},{id:'K4',home:'Colombia',away:'Congo DR',date:'21 Jun'},{id:'K5',home:'Portugal',away:'Colombia',date:'25 Jun'},{id:'K6',home:'Congo DR',away:'Uzbekistan',date:'27 Jun'}]},
+  L:{teams:['England','Croatia','Ghana','Panama'],matches:[{id:'L1',home:'England',away:'Croatia',date:'17 Jun'},{id:'L2',home:'Ghana',away:'Panama',date:'17 Jun'},{id:'L3',home:'England',away:'Ghana',date:'23 Jun'},{id:'L4',home:'Panama',away:'Croatia',date:'23 Jun'},{id:'L5',home:'England',away:'Panama',date:'27 Jun'},{id:'L6',home:'Croatia',away:'Ghana',date:'27 Jun'}]},
+};
+const FLAG_CODES={'Mexico':'mx','South Africa':'za','South Korea':'kr','Czechia':'cz','Canada':'ca','Bosnia & Herzegovina':'ba','Qatar':'qa','Switzerland':'ch','Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct','USA':'us','Paraguay':'py','Australia':'au','Turkey':'tr','Germany':'de','Curaçao':'cw','Ivory Coast':'ci','Ecuador':'ec','Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn','Belgium':'be','Egypt':'eg','Iran':'ir','New Zealand':'nz','Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy','France':'fr','Senegal':'sn','Iraq':'iq','Norway':'no','Argentina':'ar','Algeria':'dz','Austria':'at','Jordan':'jo','Portugal':'pt','Congo DR':'cd','Uzbekistan':'uz','Colombia':'co','England':'gb-eng','Croatia':'hr','Ghana':'gh','Panama':'pa'};
+function getFlag(team){const code=FLAG_CODES[team];if(!code)return '';return `<img src="https://flagcdn.com/16x12/${code}.png" width="16" height="12" style="vertical-align:middle;margin-right:3px;border:0;" alt="">`;}
+const FLAGS=FLAG_CODES;
+const ALL_TEAMS=Object.values(GROUPS).flatMap(g=>g.teams);
+const KO_ROUNDS=[
+  {id:'r32',label:'Round of 32',fixtures:[{id:'R32_1',home:'1A',away:'2B',date:'1 Jul'},{id:'R32_2',home:'1B',away:'2A',date:'1 Jul'},{id:'R32_3',home:'1C',away:'2D',date:'2 Jul'},{id:'R32_4',home:'1D',away:'2C',date:'2 Jul'},{id:'R32_5',home:'1E',away:'2F',date:'3 Jul'},{id:'R32_6',home:'1F',away:'2E',date:'3 Jul'},{id:'R32_7',home:'1G',away:'2H',date:'4 Jul'},{id:'R32_8',home:'1H',away:'2G',date:'4 Jul'},{id:'R32_9',home:'1I',away:'2J',date:'5 Jul'},{id:'R32_10',home:'1J',away:'2I',date:'5 Jul'},{id:'R32_11',home:'1K',away:'2L',date:'6 Jul'},{id:'R32_12',home:'1L',away:'2K',date:'6 Jul'},{id:'R32_13',home:'3P1',away:'3P2',date:'1 Jul'},{id:'R32_14',home:'3P3',away:'3P4',date:'2 Jul'},{id:'R32_15',home:'3P5',away:'3P6',date:'3 Jul'},{id:'R32_16',home:'3P7',away:'3P8',date:'4 Jul'}]},
+  {id:'r16',label:'Round of 16',fixtures:[{id:'R16_1',home:'WR32_1',away:'WR32_2',date:'7 Jul'},{id:'R16_2',home:'WR32_3',away:'WR32_4',date:'7 Jul'},{id:'R16_3',home:'WR32_5',away:'WR32_6',date:'8 Jul'},{id:'R16_4',home:'WR32_7',away:'WR32_8',date:'8 Jul'},{id:'R16_5',home:'WR32_9',away:'WR32_10',date:'9 Jul'},{id:'R16_6',home:'WR32_11',away:'WR32_12',date:'9 Jul'},{id:'R16_7',home:'WR32_13',away:'WR32_14',date:'10 Jul'},{id:'R16_8',home:'WR32_15',away:'WR32_16',date:'10 Jul'}]},
+  {id:'qf',label:'Quarter-Finals',fixtures:[{id:'QF1',home:'WR16_1',away:'WR16_2',date:'11 Jul'},{id:'QF2',home:'WR16_3',away:'WR16_4',date:'12 Jul'},{id:'QF3',home:'WR16_5',away:'WR16_6',date:'11 Jul'},{id:'QF4',home:'WR16_7',away:'WR16_8',date:'12 Jul'}]},
+  {id:'sf',label:'Semi-Finals',fixtures:[{id:'SF1',home:'WQF1',away:'WQF2',date:'15 Jul'},{id:'SF2',home:'WQF3',away:'WQF4',date:'16 Jul'}]},
+  {id:'final',label:'Final',fixtures:[{id:'F1',home:'WSF1',away:'WSF2',date:'19 Jul'}]},
+];
+
+function loadSweep(){try{return JSON.parse(localStorage.getItem('wc2026_sweep')||'{}');}catch{return{};}}
+function saveSweep(d){localStorage.setItem('wc2026_sweep',JSON.stringify(d));}
+function loadResults(){try{return JSON.parse(localStorage.getItem('wc2026_results')||'{}');}catch{return{};}}
+function saveResults(d){localStorage.setItem('wc2026_results',JSON.stringify(d));}
+function showToast(m='Saved!'){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+// ── SHEET URL ──
+function saveSheetUrl(){
+  const u=document.getElementById('sheet-url-input').value.trim();
+  localStorage.setItem('wc2026_sheet_url',u);
+  document.getElementById('current-url-display').textContent=u||'Not set';
+  showToast('✅ Sheet URL saved!');
+}
+async function testSheetUrl(){
+  const u=document.getElementById('sheet-url-input').value.trim()||localStorage.getItem('wc2026_sheet_url')||'https://script.google.com/macros/s/AKfycbwHEvMX5jYIZqFHuBoqg8NqYdT7j1i3AYX_McQjNZ93XbUzuGu5SN5UXGnG90HVbYSV/exec';
+  if(!u){alert('Enter a URL first.');return;}
+  document.getElementById('sheet-url-status').style.color='rgba(255,255,255,0.6)';
+  document.getElementById('sheet-url-status').textContent='Testing...';
+  try{
+    const r=await fetch(u+(u.includes('?')?'&':'?')+'nocache='+Date.now());
+    if(r.ok){const j=await r.json();const rows=(j.matches||[]).length;
+      document.getElementById('sheet-url-status').style.color='#00C851';
+      document.getElementById('sheet-url-status').textContent='✅ Connected! Found '+rows+' matches. Last updated: '+(j.lastUpdated||'unknown');
+    } else {throw new Error('HTTP '+r.status);}
+  } catch(e){
+    document.getElementById('sheet-url-status').style.color='#F59E0B';
+    document.getElementById('sheet-url-status').textContent='⚠ Could not connect: '+e.message+'. Check the URL and that the sheet is published publicly.';
+  }
+}
+
+// ── SWEEPSTAKE SETUP ──
+let pendingAssignments=null;
+function assignTeams(){
+  const sweep=loadSweep();
+  if(sweep.locked){alert('Assignments are locked! Click Unlock to reassign.');return;}
+  const raw=document.getElementById('names-input').value.trim();
+  if(!raw){alert('Enter some names first.');return;}
+  const names=raw.split('\n').map(n=>n.trim()).filter(Boolean);
+  // Shuffle both teams and names
+  const teams=[...ALL_TEAMS];
+  for(let i=teams.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[teams[i],teams[j]]=[teams[j],teams[i]];}
+  const shuffledNames=[...names];
+  for(let i=shuffledNames.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffledNames[i],shuffledNames[j]]=[shuffledNames[j],shuffledNames[i]];}
+
+  const assignments={};
+  // First pass: every team gets exactly one person
+  teams.forEach((team,idx)=>{
+    assignments[team]=[shuffledNames[idx%shuffledNames.length]];
+  });
+  // Second pass: distribute extras — but never put more than 2 on any team
+  if(names.length>teams.length){
+    // Find teams that only have 1 person (all of them at this point)
+    const extras=shuffledNames.slice(teams.length);
+    // Shuffle teams again so extras spread randomly
+    const availableTeams=[...teams];
+    for(let i=availableTeams.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[availableTeams[i],availableTeams[j]]=[availableTeams[j],availableTeams[i]];}
+    let teamIdx=0;
+    extras.forEach(name=>{
+      // Find next team that doesn't already have 2 people
+      let attempts=0;
+      while(assignments[availableTeams[teamIdx%availableTeams.length]].length>=2 && attempts<availableTeams.length){
+        teamIdx++; attempts++;
+      }
+      const team=availableTeams[teamIdx%availableTeams.length];
+      if(assignments[team].length<2) assignments[team].push(name);
+      else assignments[team].push(name); // fallback: allow 3 only if we have more people than 2x teams
+      teamIdx++;
+    });
+  }
+  pendingAssignments=assignments;
+  renderAssignPreview(assignments);
+  const extras = names.length > teams.length ? ` · ${names.length - teams.length} people share a team with someone else` : ` · ${teams.length - names.length} teams have no owner`;
+  document.getElementById('assign-hint').textContent=`${names.length} participants · ${teams.length} teams · one team each${names.length > teams.length ? extras : ''}. Click Save & Lock to confirm.`;
+}
+function renderAssignPreview(a){
+  const p=document.getElementById('assign-preview');p.innerHTML='';
+  ALL_TEAMS.forEach(t=>{
+    const pl=(a[t]||[]);
+    const row=document.createElement('div');row.className='ap-row';
+    row.innerHTML=`<span class="ap-team">${getFlag(t)} ${t}</span><span class="ap-players">${pl.join(', ')||'—'}</span>`;
+    p.appendChild(row);
+  });
+}
+async function saveAssignments(){
+  if(!pendingAssignments){showToast('No new assignments to save');return;}
+  const sweep=loadSweep();sweep.assignments=pendingAssignments;sweep.locked=true;saveSweep(sweep);
+
+  // Post to Google Sheet so all network users see the same assignments
+  const webAppUrl=localStorage.getItem('wc2026_sheet_url')||'https://script.google.com/macros/s/AKfycbwHEvMX5jYIZqFHuBoqg8NqYdT7j1i3AYX_McQjNZ93XbUzuGu5SN5UXGnG90HVbYSV/exec';
+  if(webAppUrl){
+    try{
+      await fetch(webAppUrl,{
+        method:'POST',
+        body:JSON.stringify({action:'saveAssignments',assignments:pendingAssignments})
+      });
+      showToast('✅ Assignments saved to Google Sheet!');
+    } catch(e){
+      showToast('⚠ Saved locally but sheet sync failed — check your connection');
+    }
+  } else {
+    showToast('✅ Assignments saved locally — add Sheet URL to sync across network');
+  }
+
+  pendingAssignments=null;
+  document.getElementById('btn-assign').style.display='none';
+  document.getElementById('btn-unlock').style.display='inline-flex';
+  document.getElementById('btn-clear-assign').style.display='inline-flex';
+  document.getElementById('locked-indicator').style.display='inline';
+  document.getElementById('names-input').disabled=true;
+  localStorage.removeItem('wc2026_names_draft');
+}
+function unlockAssignments(){
+  if(!confirm('Unlock assignments for editing?'))return;
+  const sweep=loadSweep();sweep.locked=false;saveSweep(sweep);
+  document.getElementById('btn-assign').style.display='inline-flex';
+  document.getElementById('btn-unlock').style.display='none';
+  document.getElementById('btn-clear-assign').style.display='none';
+  document.getElementById('locked-indicator').style.display='none';
+  document.getElementById('names-input').disabled=false;
+  showToast('Unlocked');
+}
+
+async function clearAssignments(){
+  if(!confirm('This will remove ALL assignments from the Google Sheet and locally. Use this for testing. Are you sure?'))return;
+  // Clear locally
+  const sweep=loadSweep();
+  sweep.assignments={};sweep.locked=false;saveSweep(sweep);
+  // Clear from sheet
+  const webAppUrl=localStorage.getItem('wc2026_sheet_url')||'https://script.google.com/macros/s/AKfycbwHEvMX5jYIZqFHuBoqg8NqYdT7j1i3AYX_McQjNZ93XbUzuGu5SN5UXGnG90HVbYSV/exec';
+  if(webAppUrl){
+    try{
+      await fetch(webAppUrl,{method:'POST',body:JSON.stringify({action:'clearAssignments'})});
+    } catch(e){ console.warn('Sheet clear failed',e); }
+  }
+  pendingAssignments=null;
+  document.getElementById('assign-preview').innerHTML='<p style="color:var(--muted);font-size:0.78rem;padding:8px 0">No assignments yet.</p>';
+  document.getElementById('names-input').value='';
+  document.getElementById('names-input').disabled=false;
+  document.getElementById('btn-assign').style.display='inline-flex';
+  document.getElementById('btn-unlock').style.display='none';
+  document.getElementById('btn-clear-assign').style.display='none';
+  document.getElementById('locked-indicator').style.display='none';
+  document.getElementById('assign-hint').textContent='';
+  showToast('🗑 Assignments cleared from sheet and locally');
+}
+function resetAll(){
+  if(!confirm('⚠ Delete ALL local data? This cannot be undone.'))return;
+  localStorage.removeItem('wc2026_sweep');localStorage.removeItem('wc2026_results');
+  pendingAssignments=null;
+  document.getElementById('assign-preview').innerHTML='<p style="color:var(--muted);font-size:0.78rem;padding:8px 0">No assignments yet.</p>';
+  document.getElementById('names-input').value='';document.getElementById('names-input').disabled=false;
+  document.getElementById('btn-assign').style.display='inline-flex';document.getElementById('btn-unlock').style.display='none';
+  document.getElementById('locked-indicator').style.display='none';document.getElementById('assign-hint').textContent='';
+  buildStandingsGrid();buildThirdPlaceInputs();buildGroupResults();buildKOResults();
+  showToast('🗑 All local data cleared');
+}
+
+// ── STANDINGS ──
+function buildStandingsGrid(){
+  const results=loadResults();const standings=results.group_standings||{};
+  const grid=document.getElementById('standings-grid');grid.innerHTML='';
+  Object.entries(GROUPS).forEach(([letter,group])=>{
+    const saved=standings[letter]||['','','',''];
+    const card=document.createElement('div');card.className='st-card';
+    card.innerHTML=`<h4>Group ${letter}</h4>`+[1,2,3,4].map((pos,i)=>`
+      <div class="st-row">
+        <div class="pos-badge pos-${pos}">${pos}</div>
+        <select id="st-${letter}-${pos}" style="background:var(--trumpf-pale);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:4px;font-size:0.75rem;flex:1;outline:none;">
+          <option value="">— TBD —</option>
+          ${group.teams.map(t=>`<option value="${t}" ${saved[i]===t?'selected':''}>${getFlag(t)} ${t}</option>`).join('')}
+        </select>
+      </div>`).join('');
+    grid.appendChild(card);
+  });
+}
+function saveStandings(){
+  const r=loadResults();r.group_standings={};
+  Object.keys(GROUPS).forEach(l=>{r.group_standings[l]=[1,2,3,4].map(p=>(document.getElementById(`st-${l}-${p}`)||{}).value||'');});
+  saveResults(r);showToast('✅ Standings saved!');
+}
+function buildThirdPlaceInputs(){
+  const r=loadResults();const ranks=r.third_place_ranking||[];
+  const c=document.getElementById('third-place-inputs');c.innerHTML='';
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:8px;';
+    d.innerHTML=`<span style="color:var(--trumpf-blue);font-weight:800;min-width:24px">#${i+1}</span>
+      <select id="tp-${i}" style="background:var(--trumpf-pale);border:1px solid var(--border);color:var(--text);padding:7px 8px;border-radius:5px;font-size:0.78rem;flex:1;outline:none;">
+        <option value="">— TBD —</option>
+        ${ALL_TEAMS.map(t=>`<option value="${t}" ${ranks[i]===t?'selected':''}>${getFlag(t)} ${t}</option>`).join('')}
+      </select>`;
+    c.appendChild(d);
+  }
+}
+function saveThirdPlace(){
+  const r=loadResults();r.third_place_ranking=Array.from({length:8},(_,i)=>document.getElementById(`tp-${i}`)?.value||'');
+  saveResults(r);showToast('✅ Third-place rankings saved!');
+}
+
+// ── GROUP RESULTS ──
+function buildGroupResults(){
+  const results=loadResults();const c=document.getElementById('group-results-container');c.innerHTML='';
+  Object.entries(GROUPS).forEach(([letter,group])=>{
+    const sec=document.createElement('div');sec.className='res-section';
+    sec.innerHTML=`<div class="res-group-badge">Group ${letter}</div><div class="res-grid" id="rg-${letter}"></div>`;
+    c.appendChild(sec);
+    const grid=sec.querySelector(`#rg-${letter}`);
+    group.matches.forEach(m=>{
+      const res=results[m.id]||{};
+      const card=document.createElement('div');card.className='res-match';
+      card.innerHTML=`
+        <div class="res-hdr"><div class="res-teams">${FLAGS[m.home]||'🏳'} ${m.home} vs ${m.away} ${FLAGS[m.away]||'🏳'}</div><div class="res-date">${m.date}</div></div>
+        <div class="score-row">
+          <input class="score-inp" type="number" id="sc-${m.id}-h" min="0" max="99" value="${res.home!==undefined?res.home:''}" placeholder="–">
+          <span class="score-dash">–</span>
+          <input class="score-inp" type="number" id="sc-${m.id}-a" min="0" max="99" value="${res.away!==undefined?res.away:''}" placeholder="–">
+          <button class="save-btn" onclick="saveMatchResult('${m.id}','${m.home}','${m.away}')">Save</button>
+          <span class="saved-tick ${res.home!==undefined?'vis':''}" id="ind-${m.id}">✓ Saved</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  });
+}
+function saveMatchResult(id,home,away){
+  const h=document.getElementById(`sc-${id}-h`),a=document.getElementById(`sc-${id}-a`);
+  if(h.value===''||a.value===''){alert('Enter both scores.');return;}
+  const r=loadResults();r[id]={home:parseInt(h.value),away:parseInt(a.value),winner:parseInt(h.value)>parseInt(a.value)?home:parseInt(a.value)>parseInt(h.value)?away:null};
+  saveResults(r);document.getElementById(`ind-${id}`).classList.add('vis');showToast('✓ Result saved');
+}
+
+// ── KO RESULTS ──
+function resolveTeam(code,results){
+  if(!code)return null;
+  const gm=code.match(/^([12])([A-L])$/);
+  if(gm){const pos=parseInt(gm[1])-1;const grp=gm[2];return((results.group_standings||{})[grp]||[])[pos]||null;}
+  if(code.startsWith('3P')){return((results.third_place_ranking||[])[parseInt(code.replace('3P',''))-1])||null;}
+  const wm=code.match(/^W(.+)$/);
+  if(wm){return(results[wm[1]]||{}).winner||null;}
+  return null;
+}
+function buildKOResults(){
+  const results=loadResults();const c=document.getElementById('ko-results-container');c.innerHTML='';
+  KO_ROUNDS.forEach(round=>{
+    const sec=document.createElement('div');sec.className='res-section';
+    sec.innerHTML=`<div class="res-group-badge">${round.label}</div>`;c.appendChild(sec);
+    round.fixtures.forEach(m=>{
+      const ht=resolveTeam(m.home,results);const at=resolveTeam(m.away,results);
+      const res=results[m.id]||{};
+      const div=document.createElement('div');div.className='ko-match';
+      div.innerHTML=`
+        <div class="ko-title">Match ${m.id} · ${m.date}</div>
+        <div class="ko-teams">
+          <span class="ko-name ${!ht?'tbd':''}">${ht?getFlag(ht)+' '+ht:m.home}</span>
+          <input class="score-inp" type="number" id="sc-${m.id}-h" min="0" max="99" value="${res.home!==undefined?res.home:''}" placeholder="–" style="width:44px">
+          <span class="score-dash">–</span>
+          <input class="score-inp" type="number" id="sc-${m.id}-a" min="0" max="99" value="${res.away!==undefined?res.away:''}" placeholder="–" style="width:44px">
+          <span class="ko-name ${!at?'tbd':''}">${at?getFlag(at)+' '+at:m.away}</span>
+          <button class="save-btn" onclick="saveKOResult('${m.id}','${m.home}','${m.away}')">Save</button>
+          <span class="saved-tick ${res.home!==undefined?'vis':''}" id="ind-${m.id}">✓</span>
+        </div>
+        ${(!ht||!at)?`<div style="font-size:0.68rem;color:var(--muted);margin-top:5px">⏳ Teams populate automatically from previous round results</div>`:''}`;
+      sec.appendChild(div);
+    });
+  });
+}
+function saveKOResult(id,homeCode,awayCode){
+  const h=document.getElementById(`sc-${id}-h`),a=document.getElementById(`sc-${id}-a`);
+  if(h.value===''||a.value===''){alert('Enter both scores.');return;}
+  const results=loadResults();
+  const ht=resolveTeam(homeCode,results);const at=resolveTeam(awayCode,results);
+  results[id]={home:parseInt(h.value),away:parseInt(a.value),winner:parseInt(h.value)>parseInt(a.value)?ht:parseInt(a.value)>parseInt(h.value)?at:null};
+  saveResults(results);document.getElementById(`ind-${id}`).classList.add('vis');
+  showToast('✓ Result saved');setTimeout(buildKOResults,300);
+}
+
+// ── TABS ──
+document.querySelectorAll('.anav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.anav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ── INIT ──
+function injectTestScores(){
+  if(!confirm('Inject fake scores to test the bracket? Clear them when done.'))return;
+  const r=loadResults();
+  r.group_standings={};
+  // Group standings
+  r.group_standings['A']=['Mexico','South Korea','Czechia','South Africa'];
+  r.group_standings['B']=['Switzerland','Canada','Bosnia & Herzegovina','Qatar'];
+  r.group_standings['C']=['Brazil','Morocco','Scotland','Haiti'];
+  r.group_standings['D']=['USA','Australia','Paraguay','Turkey'];
+  r.group_standings['E']=['Germany','Ecuador','Ivory Coast','Curaçao'];
+  r.group_standings['F']=['Netherlands','Japan','Tunisia','Sweden'];
+  r.group_standings['G']=['Belgium','Egypt','New Zealand','Iran'];
+  r.group_standings['H']=['Spain','Uruguay','Cape Verde','Saudi Arabia'];
+  r.group_standings['I']=['France','Norway','Senegal','Iraq'];
+  r.group_standings['J']=['Argentina','Austria','Algeria','Jordan'];
+  r.group_standings['K']=['Portugal','Colombia','Congo DR','Uzbekistan'];
+  r.group_standings['L']=['England','Croatia','Ghana','Panama'];
+  r.third_place_ranking=['Scotland','Ecuador','Egypt','Norway','Cape Verde','Congo DR','Austria','Ghana'];
+  // Group A
+  r['A1']={home:2,away:0,winner:'Mexico',homeTeam:'Mexico',awayTeam:'South Africa'};
+  r['A2']={home:2,away:1,winner:'South Korea',homeTeam:'South Korea',awayTeam:'Czechia'};
+  r['A3']={home:1,away:0,winner:'Mexico',homeTeam:'Mexico',awayTeam:'South Korea'};
+  r['A4']={home:1,away:0,winner:'Czechia',homeTeam:'Czechia',awayTeam:'South Africa'};
+  r['A5']={home:2,away:1,winner:'South Korea',homeTeam:'South Korea',awayTeam:'South Africa'};
+  r['A6']={home:0,away:2,winner:'Mexico',homeTeam:'Czechia',awayTeam:'Mexico'};
+  // Group B
+  r['B1']={home:2,away:0,winner:'Canada',homeTeam:'Canada',awayTeam:'Bosnia & Herzegovina'};
+  r['B2']={home:0,away:2,winner:'Switzerland',homeTeam:'Qatar',awayTeam:'Switzerland'};
+  r['B3']={home:2,away:1,winner:'Canada',homeTeam:'Canada',awayTeam:'Qatar'};
+  r['B4']={home:2,away:1,winner:'Switzerland',homeTeam:'Switzerland',awayTeam:'Bosnia & Herzegovina'};
+  r['B5']={home:1,away:2,winner:'Switzerland',homeTeam:'Canada',awayTeam:'Switzerland'};
+  r['B6']={home:1,away:0,winner:'Bosnia & Herzegovina',homeTeam:'Bosnia & Herzegovina',awayTeam:'Qatar'};
+  // Group C
+  r['C1']={home:3,away:1,winner:'Brazil',homeTeam:'Brazil',awayTeam:'Morocco'};
+  r['C2']={home:0,away:2,winner:'Scotland',homeTeam:'Haiti',awayTeam:'Scotland'};
+  r['C3']={home:4,away:0,winner:'Brazil',homeTeam:'Brazil',awayTeam:'Haiti'};
+  r['C4']={home:1,away:1,winner:null,homeTeam:'Scotland',awayTeam:'Morocco'};
+  r['C5']={home:2,away:0,winner:'Brazil',homeTeam:'Brazil',awayTeam:'Scotland'};
+  r['C6']={home:2,away:0,winner:'Morocco',homeTeam:'Morocco',awayTeam:'Haiti'};
+  // Group D
+  r['D1']={home:2,away:1,winner:'USA',homeTeam:'USA',awayTeam:'Paraguay'};
+  r['D2']={home:2,away:1,winner:'Australia',homeTeam:'Australia',awayTeam:'Turkey'};
+  r['D3']={home:1,away:0,winner:'USA',homeTeam:'USA',awayTeam:'Australia'};
+  r['D4']={home:1,away:2,winner:'Paraguay',homeTeam:'Turkey',awayTeam:'Paraguay'};
+  r['D5']={home:2,away:0,winner:'USA',homeTeam:'USA',awayTeam:'Turkey'};
+  r['D6']={home:0,away:2,winner:'Australia',homeTeam:'Paraguay',awayTeam:'Australia'};
+  // Group E
+  r['E1']={home:3,away:0,winner:'Germany',homeTeam:'Germany',awayTeam:'Curaçao'};
+  r['E2']={home:1,away:2,winner:'Ecuador',homeTeam:'Ivory Coast',awayTeam:'Ecuador'};
+  r['E3']={home:2,away:1,winner:'Germany',homeTeam:'Germany',awayTeam:'Ivory Coast'};
+  r['E4']={home:2,away:0,winner:'Ecuador',homeTeam:'Ecuador',awayTeam:'Curaçao'};
+  r['E5']={home:1,away:0,winner:'Germany',homeTeam:'Germany',awayTeam:'Ecuador'};
+  r['E6']={home:1,away:2,winner:'Ivory Coast',homeTeam:'Curaçao',awayTeam:'Ivory Coast'};
+  // Group F
+  r['F1']={home:2,away:1,winner:'Netherlands',homeTeam:'Netherlands',awayTeam:'Japan'};
+  r['F2']={home:1,away:2,winner:'Tunisia',homeTeam:'Sweden',awayTeam:'Tunisia'};
+  r['F3']={home:3,away:0,winner:'Netherlands',homeTeam:'Netherlands',awayTeam:'Sweden'};
+  r['F4']={home:0,away:2,winner:'Japan',homeTeam:'Tunisia',awayTeam:'Japan'};
+  r['F5']={home:1,away:0,winner:'Netherlands',homeTeam:'Netherlands',awayTeam:'Tunisia'};
+  r['F6']={home:2,away:1,winner:'Japan',homeTeam:'Japan',awayTeam:'Sweden'};
+  // Group G
+  r['G1']={home:1,away:2,winner:'Egypt',homeTeam:'Belgium',awayTeam:'Egypt'};
+  r['G2']={home:0,away:1,winner:'New Zealand',homeTeam:'Iran',awayTeam:'New Zealand'};
+  r['G3']={home:2,away:0,winner:'Belgium',homeTeam:'Belgium',awayTeam:'Iran'};
+  r['G4']={home:1,away:2,winner:'Egypt',homeTeam:'New Zealand',awayTeam:'Egypt'};
+  r['G5']={home:2,away:1,winner:'Belgium',homeTeam:'Belgium',awayTeam:'New Zealand'};
+  r['G6']={home:2,away:1,winner:'Egypt',homeTeam:'Egypt',awayTeam:'Iran'};
+  // Group H
+  r['H1']={home:3,away:0,winner:'Spain',homeTeam:'Spain',awayTeam:'Cape Verde'};
+  r['H2']={home:0,away:2,winner:'Uruguay',homeTeam:'Saudi Arabia',awayTeam:'Uruguay'};
+  r['H3']={home:2,away:0,winner:'Spain',homeTeam:'Spain',awayTeam:'Saudi Arabia'};
+  r['H4']={home:1,away:0,winner:'Uruguay',homeTeam:'Uruguay',awayTeam:'Cape Verde'};
+  r['H5']={home:1,away:0,winner:'Spain',homeTeam:'Spain',awayTeam:'Uruguay'};
+  r['H6']={home:1,away:0,winner:'Cape Verde',homeTeam:'Cape Verde',awayTeam:'Saudi Arabia'};
+  // Group I
+  r['I1']={home:2,away:1,winner:'France',homeTeam:'France',awayTeam:'Senegal'};
+  r['I2']={home:0,away:2,winner:'Norway',homeTeam:'Iraq',awayTeam:'Norway'};
+  r['I3']={home:3,away:0,winner:'France',homeTeam:'France',awayTeam:'Iraq'};
+  r['I4']={home:2,away:1,winner:'Norway',homeTeam:'Norway',awayTeam:'Senegal'};
+  r['I5']={home:1,away:0,winner:'France',homeTeam:'France',awayTeam:'Norway'};
+  r['I6']={home:2,away:0,winner:'Senegal',homeTeam:'Senegal',awayTeam:'Iraq'};
+  // Group J
+  r['J1']={home:2,away:0,winner:'Argentina',homeTeam:'Argentina',awayTeam:'Algeria'};
+  r['J2']={home:2,away:1,winner:'Austria',homeTeam:'Austria',awayTeam:'Jordan'};
+  r['J3']={home:1,away:0,winner:'Argentina',homeTeam:'Argentina',awayTeam:'Austria'};
+  r['J4']={home:0,away:2,winner:'Algeria',homeTeam:'Jordan',awayTeam:'Algeria'};
+  r['J5']={home:2,away:1,winner:'Argentina',homeTeam:'Argentina',awayTeam:'Jordan'};
+  r['J6']={home:1,away:2,winner:'Austria',homeTeam:'Algeria',awayTeam:'Austria'};
+  // Group K
+  r['K1']={home:3,away:0,winner:'Portugal',homeTeam:'Portugal',awayTeam:'Congo DR'};
+  r['K2']={home:0,away:2,winner:'Colombia',homeTeam:'Uzbekistan',awayTeam:'Colombia'};
+  r['K3']={home:2,away:0,winner:'Portugal',homeTeam:'Portugal',awayTeam:'Uzbekistan'};
+  r['K4']={home:2,away:1,winner:'Colombia',homeTeam:'Colombia',awayTeam:'Congo DR'};
+  r['K5']={home:1,away:0,winner:'Portugal',homeTeam:'Portugal',awayTeam:'Colombia'};
+  r['K6']={home:2,away:0,winner:'Congo DR',homeTeam:'Congo DR',awayTeam:'Uzbekistan'};
+  // Group L
+  r['L1']={home:2,away:1,winner:'England',homeTeam:'England',awayTeam:'Croatia'};
+  r['L2']={home:2,away:0,winner:'Ghana',homeTeam:'Ghana',awayTeam:'Panama'};
+  r['L3']={home:2,away:0,winner:'England',homeTeam:'England',awayTeam:'Ghana'};
+  r['L4']={home:0,away:2,winner:'Croatia',homeTeam:'Panama',awayTeam:'Croatia'};
+  r['L5']={home:1,away:0,winner:'England',homeTeam:'England',awayTeam:'Panama'};
+  r['L6']={home:2,away:1,winner:'Croatia',homeTeam:'Croatia',awayTeam:'Ghana'};
+  // R32
+  r['R32_1'] ={home:2,away:1,winner:'Mexico',homeTeam:'Mexico',awayTeam:'Canada'};
+  r['R32_2'] ={home:1,away:2,winner:'Switzerland',homeTeam:'Switzerland',awayTeam:'South Korea'};
+  r['R32_3'] ={home:3,away:1,winner:'Brazil',homeTeam:'Brazil',awayTeam:'USA'};
+  r['R32_4'] ={home:2,away:0,winner:'Australia',homeTeam:'Australia',awayTeam:'Morocco'};
+  r['R32_5'] ={home:2,away:1,winner:'Germany',homeTeam:'Germany',awayTeam:'Japan'};
+  r['R32_6'] ={home:1,away:2,winner:'Ecuador',homeTeam:'Netherlands',awayTeam:'Ecuador'};
+  r['R32_7'] ={home:2,away:1,winner:'Belgium',homeTeam:'Belgium',awayTeam:'Uruguay'};
+  r['R32_8'] ={home:0,away:1,winner:'Spain',homeTeam:'Spain',awayTeam:'Egypt'};
+  r['R32_9'] ={home:2,away:0,winner:'France',homeTeam:'France',awayTeam:'Austria'};
+  r['R32_10']={home:1,away:2,winner:'Argentina',homeTeam:'Norway',awayTeam:'Argentina'};
+  r['R32_11']={home:3,away:1,winner:'Portugal',homeTeam:'Portugal',awayTeam:'Croatia'};
+  r['R32_12']={home:0,away:2,winner:'Colombia',homeTeam:'England',awayTeam:'Colombia'};
+  r['R32_13']={home:2,away:1,winner:'Scotland',homeTeam:'Scotland',awayTeam:'Cape Verde'};
+  r['R32_14']={home:1,away:2,winner:'Norway',homeTeam:'Ecuador',awayTeam:'Norway'};
+  r['R32_15']={home:2,away:0,winner:'Egypt',homeTeam:'Egypt',awayTeam:'Congo DR'};
+  r['R32_16']={home:1,away:2,winner:'Ghana',homeTeam:'Austria',awayTeam:'Ghana'};
+  // R16
+  r['R16_1']={home:2,away:1,winner:'Mexico',homeTeam:'Mexico',awayTeam:'Switzerland'};
+  r['R16_2']={home:1,away:2,winner:'Australia',homeTeam:'Brazil',awayTeam:'Australia'};
+  r['R16_3']={home:2,away:1,winner:'Germany',homeTeam:'Germany',awayTeam:'Ecuador'};
+  r['R16_4']={home:1,away:2,winner:'Spain',homeTeam:'Belgium',awayTeam:'Spain'};
+  r['R16_5']={home:2,away:1,winner:'France',homeTeam:'France',awayTeam:'Argentina'};
+  r['R16_6']={home:3,away:1,winner:'Portugal',homeTeam:'Portugal',awayTeam:'Colombia'};
+  r['R16_7']={home:2,away:0,winner:'Scotland',homeTeam:'Scotland',awayTeam:'Norway'};
+  r['R16_8']={home:1,away:2,winner:'Ghana',homeTeam:'Egypt',awayTeam:'Ghana'};
+  // QF
+  r['QF1']={home:2,away:1,winner:'Mexico',homeTeam:'Mexico',awayTeam:'Australia'};
+  r['QF2']={home:1,away:2,winner:'Spain',homeTeam:'Germany',awayTeam:'Spain'};
+  r['QF3']={home:2,away:1,winner:'France',homeTeam:'France',awayTeam:'Portugal'};
+  r['QF4']={home:2,away:1,winner:'Scotland',homeTeam:'Scotland',awayTeam:'Ghana'};
+  // SF
+  r['SF1']={home:1,away:2,winner:'Spain',homeTeam:'Mexico',awayTeam:'Spain'};
+  r['SF2']={home:2,away:1,winner:'France',homeTeam:'France',awayTeam:'Scotland'};
+  // Final
+  r['F1']={home:2,away:1,winner:'Spain',homeTeam:'Spain',awayTeam:'France'};
+  saveResults(r);
+  buildGroupResults();buildKOResults();buildStandingsGrid();
+  showToast('🧪 Test scores injected — open the bracket page to check!');
+}
+
+function clearTestScores(){
+  if(!confirm('Clear all test scores?'))return;
+  localStorage.removeItem('wc2026_results');
+  buildGroupResults();buildKOResults();buildStandingsGrid();
+  showToast('🧹 Test scores cleared');
+}
+
+function saveNamesDraft(){
+  const val = document.getElementById('names-input').value;
+  localStorage.setItem('wc2026_names_draft', val);
+}
+
+function init(){
+  const sweep=loadSweep();
+  const savedUrl=localStorage.getItem('wc2026_sheet_url')||'https://script.google.com/macros/s/AKfycbwHEvMX5jYIZqFHuBoqg8NqYdT7j1i3AYX_McQjNZ93XbUzuGu5SN5UXGnG90HVbYSV/exec';
+  document.getElementById('sheet-url-input').value=savedUrl;
+  document.getElementById('current-url-display').textContent=savedUrl||'Not set';
+  if(sweep.locked){
+    document.getElementById('btn-assign').style.display='none';
+    document.getElementById('btn-unlock').style.display='inline-flex';
+    document.getElementById('btn-clear-assign').style.display='inline-flex';
+    document.getElementById('locked-indicator').style.display='inline';
+    document.getElementById('names-input').disabled=true;
+    if(sweep.assignments){
+      const names=new Set(Object.values(sweep.assignments).flat());
+      document.getElementById('names-input').value=[...names].join('\n');
+      renderAssignPreview(sweep.assignments);
+    }
+  }
+  // Restore draft names if not locked
+  if (!sweep.locked) {
+    const draft = localStorage.getItem('wc2026_names_draft') || '';
+    if (draft) document.getElementById('names-input').value = draft;
+  }
+
+  buildStandingsGrid();buildThirdPlaceInputs();buildGroupResults();buildKOResults();
+}
+init();
+</script>
+</body>
+</html>
