@@ -232,8 +232,8 @@ if(sessionStorage.getItem('wc_admin_auth')==='1'){
     <div class="card">
       <h3>👥 Participant Names <span id="locked-indicator" style="display:none"><span class="locked-badge">🔒 LOCKED</span></span></h3>
       <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.6">Enter one name per line. All 48 teams will be randomly distributed across your participants.</p>
-      <textarea id="names-input" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Sarah&#10;..." oninput="saveNamesDraft()"></textarea>
-      <p class="hint">One name per line. Each person gets one team. More than 48 people = some teams are shared.</p>
+      <textarea id="names-input" placeholder="Enter new names to add (one per line)..." oninput="saveNamesDraft()"></textarea>
+      <p class="hint">Enter only the NEW names to add. They will be randomly assigned to teams that currently have only one person.</p>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-blue" id="btn-assign" onclick="assignTeams()">🎲 Randomly Assign Teams</button>
         <button class="btn btn-outline" id="btn-unlock" onclick="unlockAssignments()" style="display:none">🔓 Unlock & Edit</button>
@@ -398,45 +398,93 @@ let pendingAssignments=null;
 function assignTeams(){
   const sweep=loadSweep();
   if(sweep.locked){alert('Assignments are locked! Click Unlock to reassign.');return;}
-  const raw=document.getElementById('names-input').value.trim();
-  if(!raw){alert('Enter some names first.');return;}
-  const names=raw.split('\n').map(n=>n.trim()).filter(Boolean);
-  // Shuffle both teams and names
-  const teams=[...ALL_TEAMS];
-  for(let i=teams.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[teams[i],teams[j]]=[teams[j],teams[i]];}
-  const shuffledNames=[...names];
-  for(let i=shuffledNames.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffledNames[i],shuffledNames[j]]=[shuffledNames[j],shuffledNames[i]];}
 
-  const assignments={};
-  // First pass: every team gets exactly one person
-  teams.forEach((team,idx)=>{
-    assignments[team]=[shuffledNames[idx%shuffledNames.length]];
-  });
-  // Second pass: distribute extras — but never put more than 2 on any team
-  if(names.length>teams.length){
-    // Find teams that only have 1 person (all of them at this point)
-    const extras=shuffledNames.slice(teams.length);
-    // Shuffle teams again so extras spread randomly
-    const availableTeams=[...teams];
-    for(let i=availableTeams.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[availableTeams[i],availableTeams[j]]=[availableTeams[j],availableTeams[i]];}
-    let teamIdx=0;
-    extras.forEach(name=>{
-      // Find next team that doesn't already have 2 people
-      let attempts=0;
-      while(assignments[availableTeams[teamIdx%availableTeams.length]].length>=2 && attempts<availableTeams.length){
-        teamIdx++; attempts++;
-      }
-      const team=availableTeams[teamIdx%availableTeams.length];
-      if(assignments[team].length<2) assignments[team].push(name);
-      else assignments[team].push(name); // fallback: allow 3 only if we have more people than 2x teams
-      teamIdx++;
-    });
+  const raw=document.getElementById('names-input').value.trim();
+  if(!raw){alert('Enter the new names to add.');return;}
+  const newNames=raw.split('\n').map(n=>n.trim()).filter(Boolean);
+
+  // Current locked assignments — hardcoded from the official draw
+  const currentAssignments = {
+    'Australia': ['Alex Spohr', 'Kai Langham'],
+    'Belgium': ['Dave Mckimm', 'Richard Hirst'],
+    'Cape Verde': ['Jack Walker', 'Lee Cheffings'],
+    'Croatia': ['Kevin Roughton', 'Andy Powell'],
+    'Curaçao': ['Simon Adderley', 'Anja Haeussermann'],
+    'France': ['Dominic Jeffreys', 'Lynda Mattingley'],
+    'Japan': ['David Batchelor', 'Jason Land'],
+    'Jordan': ['Tim Hill', 'Ronnie Harris'],
+    'Morocco': ['Antony Tearle', 'Darren Sharples'],
+    'Switzerland': ['Graham Jessop', 'Derek Wilson'],
+    'Algeria': ['Robin Simmonett'],
+    'Argentina': ['James Hare'],
+    'Austria': ['Daniel Slater'],
+    'Bosnia & Herzegovina': ['Karla Phipps'],
+    'Brazil': ['Jonathon Deane'],
+    'Canada': ['Sam Pass'],
+    'Colombia': ['David Paterson'],
+    'Congo DR': ['Jon Young'],
+    'Czechia': ['Jack Ennis'],
+    'Ecuador': ['Jacob Martin'],
+    'Egypt': ['Jordan Clarke'],
+    'England': ['Caroline Power'],
+    'Germany': ['Sean Smith'],
+    'Ghana': ['Robert Bebbington'],
+    'Haiti': ['Stephen Power'],
+    'Iran': ['Jason Stanley'],
+    'Iraq': ['Parvez Omar'],
+    'Ivory Coast': ['Alan Stanley'],
+    'Mexico': ['Nathan Myerthall'],
+    'Netherlands': ['Gill Ledgerd'],
+    'New Zealand': ['Jan Vaughan'],
+    'Norway': ['Ben Campbell'],
+    'Panama': ['Andrew Emmess'],
+    'Paraguay': ['Dave Clayton'],
+    'Portugal': ['Nas Kaur'],
+    'Qatar': ['Benjamin Brunsdon'],
+    'Saudi Arabia': ['Nathan Taylor'],
+    'Scotland': ['Andrew Pye'],
+    'Senegal': ['Assef Qaddomi'],
+    'South Africa': ['Barry Smith'],
+    'South Korea': ['Chetna Patel'],
+    'Spain': ['Alex Hill'],
+    'Sweden': ['John Roche'],
+    'Tunisia': ['Stuart Adams'],
+    'Turkey': ['Davey Fannan'],
+    'Uruguay': ['Michael Windsor'],
+    'USA': ['Barry McEvoy'],
+    'Uzbekistan': ['Lisa Haylar'],
+  };
+
+  // Find teams with only 1 person — eligible for new assignments
+  const singleTeams = Object.entries(currentAssignments)
+    .filter(([team, people]) => people.length === 1)
+    .map(([team]) => team);
+
+  if(newNames.length > singleTeams.length){
+    alert('Too many new names! Only ' + singleTeams.length + ' teams with a single person are available.');
+    return;
   }
-  pendingAssignments=assignments;
+
+  // Shuffle single teams and assign one to each new person
+  const shuffled = [...singleTeams];
+  for(let i=shuffled.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+  }
+
+  const assignments = JSON.parse(JSON.stringify(currentAssignments));
+  newNames.forEach((name, idx) => {
+    assignments[shuffled[idx]].push(name);
+  });
+
+  pendingAssignments = assignments;
   renderAssignPreview(assignments);
-  const extras = names.length > teams.length ? ` · ${names.length - teams.length} people share a team with someone else` : ` · ${teams.length - names.length} teams have no owner`;
-  document.getElementById('assign-hint').textContent=`${names.length} participants · ${teams.length} teams · one team each${names.length > teams.length ? extras : ''}. Click Save & Lock to confirm.`;
+
+  const assigned = newNames.map((name,idx) => name + ' → ' + shuffled[idx]).join(', ');
+  document.getElementById('assign-hint').textContent =
+    newNames.length + ' new name(s) allocated: ' + assigned + '. Click Save & Lock to confirm.';
 }
+
 function renderAssignPreview(a){
   const p=document.getElementById('assign-preview');p.innerHTML='';
   ALL_TEAMS.forEach(t=>{
