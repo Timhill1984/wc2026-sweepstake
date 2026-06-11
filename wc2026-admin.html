@@ -436,9 +436,9 @@ function assignTeams(){
     'Mexico': ['Nathan Myerthall'],
     'Netherlands': ['Gill Ledgerd'],
     'New Zealand': ['Jan Vaughan'],
-    'Norway': ['Ben Campbell'],
+    'Norway': ['Ben Campbell', 'James Douglas'],
     'Panama': ['Andrew Emmess'],
-    'Paraguay': ['Dave Clayton'],
+    'Paraguay': ['Dave Clayton', 'Chris Peacock'],
     'Portugal': ['Nas Kaur'],
     'Qatar': ['Benjamin Brunsdon'],
     'Saudi Arabia': ['Nathan Taylor'],
@@ -521,6 +521,43 @@ async function saveAssignments(){
   document.getElementById('locked-indicator').style.display='inline';
   document.getElementById('names-input').disabled=true;
   localStorage.removeItem('wc2026_names_draft');
+
+  // Auto-update the hardcoded assignments in this page so future additions are safe
+  updateHardcodedAssignments(sweep.assignments);
+}
+
+function updateHardcodedAssignments(assignments) {
+  try {
+    // Build the new hardcoded JS object string
+    const lines = Object.entries(assignments)
+      .map(([team, people]) => {
+        const escaped = people.map(p => "'" + p.replace(/'/g, "\\'") + "'").join(', ');
+        return "    '" + team + "': [" + escaped + "],";
+      }).join('\n');
+
+    const newBlock = "  const currentAssignments = {\n" + lines + "\n  };";
+
+    // Get current page HTML and replace the hardcoded block
+    const html = document.documentElement.outerHTML;
+    const start = html.indexOf('  const currentAssignments = {');
+    const end = html.indexOf('  };', start) + 4;
+    if (start === -1 || end === -1) return;
+
+    const newHtml = html.substring(0, start) + newBlock + html.substring(end);
+
+    // Create a downloadable updated version of this page
+    const blob = new Blob([newHtml], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wc2026-admin.html';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast('✅ Updated admin page downloaded — upload to GitHub to save changes!');
+  } catch(e) {
+    console.warn('Auto-update failed:', e);
+  }
 }
 function unlockAssignments(){
   if(!confirm('Unlock assignments for editing?'))return;
