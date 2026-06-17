@@ -289,8 +289,8 @@ main { padding: 24px 24px 40px; }
 .bracket-scroll { overflow-x: auto; padding-bottom: 20px; }
 .bracket-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
   min-width: 0;
 }
 
@@ -701,45 +701,45 @@ const FLAGS = FLAG_CODES; // kept for compatibility
 
 const KO_ROUNDS = [
   {id:'r32', label:'Round of 32', fixtures:[
-    {id:'R32_73', home:'2A', away:'2B',           date:'28 Jun', label:'M73'},
-    {id:'R32_76', home:'1C', away:'2F',           date:'29 Jun', label:'M76'},
-    {id:'R32_74', home:'1E', away:'3P-ABCDF',     date:'29 Jun', label:'M74'},
-    {id:'R32_75', home:'1F', away:'2C',           date:'29 Jun', label:'M75'},
-    {id:'R32_78', home:'2E', away:'2I',           date:'30 Jun', label:'M78'},
-    {id:'R32_77', home:'1I', away:'3P-CDFGH',     date:'30 Jun', label:'M77'},
-    {id:'R32_79', home:'1A', away:'3P-CEFHI',     date:'30 Jun', label:'M79'},
-    {id:'R32_80', home:'1L', away:'3P-EHIJK',     date:'1 Jul',  label:'M80'},
-    {id:'R32_82', home:'1G', away:'3P-AEHIJ',     date:'1 Jul',  label:'M82'},
-    {id:'R32_81', home:'1D', away:'3P-BEFIJ',     date:'1 Jul',  label:'M81'},
-    {id:'R32_84', home:'1H', away:'2J',           date:'2 Jul',  label:'M84'},
-    {id:'R32_83', home:'2K', away:'2L',           date:'2 Jul',  label:'M83'},
-    {id:'R32_85', home:'1B', away:'3P-EFGIJ',     date:'3 Jul',  label:'M85'},
-    {id:'R32_88', home:'2D', away:'2G',           date:'3 Jul',  label:'M88'},
-    {id:'R32_86', home:'1J', away:'2H',           date:'3 Jul',  label:'M86'},
-    {id:'R32_87', home:'1K', away:'3P-DEIJL',     date:'4 Jul',  label:'M87'},
+    {id:'R32_73', home:'2A',       away:'2B',        date:'28 Jun', label:'M73', title:'Grp A Runner-up v Grp B Runner-up'},
+    {id:'R32_74', home:'1E',       away:'3P-ABCDF',  date:'29 Jun', label:'M74', title:'Grp E Winner v Best 3rd Place'},
+    {id:'R32_75', home:'1F',       away:'2C',        date:'29 Jun', label:'M75', title:'Grp F Winner v Grp C Runner-up'},
+    {id:'R32_76', home:'1C',       away:'2F',        date:'29 Jun', label:'M76', title:'Grp C Winner v Grp F Runner-up'},
+    {id:'R32_77', home:'1I',       away:'3P-CDFGH',  date:'30 Jun', label:'M77', title:'Grp I Winner v Best 3rd Place'},
+    {id:'R32_78', home:'2E',       away:'2I',        date:'30 Jun', label:'M78', title:'Grp E Runner-up v Grp I Runner-up'},
+    {id:'R32_79', home:'2D',       away:'2G',        date:'30 Jun', label:'M79', title:'Grp D Runner-up v Grp G Runner-up'},
+    {id:'R32_80', home:'1A',       away:'3P-CEFHI',  date:'1 Jul',  label:'M80', title:'Grp A Winner v Best 3rd Place'},
+    {id:'R32_81', home:'1L',       away:'3P-EHIJK',  date:'1 Jul',  label:'M81', title:'Grp L Winner v Best 3rd Place'},
+    {id:'R32_82', home:'1G',       away:'3P-AEHIJ',  date:'1 Jul',  label:'M82', title:'Grp G Winner v Best 3rd Place'},
+    {id:'R32_83', home:'1D',       away:'3P-BEFIJ',  date:'2 Jul',  label:'M83', title:'Grp D Winner v Best 3rd Place'},
+    {id:'R32_84', home:'1H',       away:'2J',        date:'2 Jul',  label:'M84', title:'Grp H Winner v Grp J Runner-up'},
+    {id:'R32_85', home:'2K',       away:'2L',        date:'2 Jul',  label:'M85', title:'Grp K Runner-up v Grp L Runner-up'},
+    {id:'R32_86', home:'1B',       away:'3P-EFGIJ',  date:'3 Jul',  label:'M86', title:'Grp B Winner v Best 3rd Place'},
+    {id:'R32_87', home:'1J',       away:'2H',        date:'3 Jul',  label:'M87', title:'Grp J Winner v Grp H Runner-up'},
+    {id:'R32_88', home:'1K',       away:'3P-DEIJL',  date:'4 Jul',  label:'M88', title:'Grp K Winner v Best 3rd Place'},
   ]},
   {id:'r16', label:'Round of 16', fixtures:[
-    {id:'R16_90',home:'WR32_73',away:'WR32_75',date:'4 Jul', label:'M90'},
-    {id:'R16_89',home:'WR32_74',away:'WR32_77',date:'4 Jul', label:'M89'},
-    {id:'R16_91',home:'WR32_76',away:'WR32_78',date:'5 Jul', label:'M91'},
-    {id:'R16_92',home:'WR32_79',away:'WR32_80',date:'6 Jul', label:'M92'},
-    {id:'R16_93',home:'WR32_83',away:'WR32_84',date:'6 Jul', label:'M93'},
-    {id:'R16_94',home:'WR32_81',away:'WR32_82',date:'6 Jul', label:'M94'},
-    {id:'R16_95',home:'WR32_86',away:'WR32_88',date:'7 Jul', label:'M95'},
-    {id:'R16_96',home:'WR32_85',away:'WR32_87',date:'7 Jul', label:'M96'},
+    {id:'R16_89', home:'WR32_73',  away:'WR32_75',   date:'4 Jul',  label:'M89', title:'Winner M73 v Winner M75'},
+    {id:'R16_90', home:'WR32_74',  away:'WR32_77',   date:'4 Jul',  label:'M90', title:'Winner M74 v Winner M77'},
+    {id:'R16_91', home:'WR32_76',  away:'WR32_78',   date:'5 Jul',  label:'M91', title:'Winner M76 v Winner M78'},
+    {id:'R16_92', home:'WR32_79',  away:'WR32_80',   date:'6 Jul',  label:'M92', title:'Winner M79 v Winner M80'},
+    {id:'R16_93', home:'WR32_83',  away:'WR32_84',   date:'6 Jul',  label:'M93', title:'Winner M83 v Winner M84'},
+    {id:'R16_94', home:'WR32_81',  away:'WR32_82',   date:'7 Jul',  label:'M94', title:'Winner M81 v Winner M82'},
+    {id:'R16_95', home:'WR32_86',  away:'WR32_88',   date:'7 Jul',  label:'M95', title:'Winner M86 v Winner M88'},
+    {id:'R16_96', home:'WR32_85',  away:'WR32_87',   date:'7 Jul',  label:'M96', title:'Winner M85 v Winner M87'},
   ]},
   {id:'qf', label:'Quarter-Finals', fixtures:[
-    {id:'QF1',home:'WR16_90',away:'WR16_89',date:'9 Jul'},
-    {id:'QF2',home:'WR16_91',away:'WR16_92',date:'10 Jul'},
-    {id:'QF3',home:'WR16_93',away:'WR16_94',date:'11 Jul'},
-    {id:'QF4',home:'WR16_95',away:'WR16_96',date:'11 Jul'},
+    {id:'QF1', home:'WR16_89', away:'WR16_90', date:'9 Jul',  label:'QF1', title:'Quarter-Final 1'},
+    {id:'QF2', home:'WR16_91', away:'WR16_92', date:'10 Jul', label:'QF2', title:'Quarter-Final 2'},
+    {id:'QF3', home:'WR16_93', away:'WR16_94', date:'11 Jul', label:'QF3', title:'Quarter-Final 3'},
+    {id:'QF4', home:'WR16_95', away:'WR16_96', date:'11 Jul', label:'QF4', title:'Quarter-Final 4'},
   ]},
   {id:'sf', label:'Semi-Finals', fixtures:[
-    {id:'SF1',home:'WQF1',away:'WQF2',date:'14 Jul'},
-    {id:'SF2',home:'WQF3',away:'WQF4',date:'15 Jul'},
+    {id:'SF1', home:'WQF1', away:'WQF2', date:'14 Jul', label:'SF1', title:'Semi-Final 1'},
+    {id:'SF2', home:'WQF3', away:'WQF4', date:'15 Jul', label:'SF2', title:'Semi-Final 2'},
   ]},
   {id:'final', label:'Final', fixtures:[
-    {id:'F1',home:'WSF1',away:'WSF2',date:'19 Jul'},
+    {id:'F1', home:'WSF1', away:'WSF2', date:'19 Jul', label:'Final', title:'The Final'},
   ]},
 ];
 
@@ -1134,21 +1134,30 @@ function renderKnockout(fixtures, containerId) {
     const ap  = at ? getPlayers(at).join('<br>') : '';
 
     const div = document.createElement('div');
+    div.className = 'group-card';
     div.innerHTML = `
-      <div class="match-row${fin?' finished':''}${live?' live':''}">
-        <div class="team-cell">
-          <span class="team-name${hw?' winner':''}">${ht?getFlag(ht):''} ${ht||m.home}</span>
-          ${hp?`<span class="team-players">${hp}</span>`:''}
+      <div class="group-header">
+        <div class="group-letter" style="font-size:0.85rem;width:auto;padding-right:6px;font-family:'Inter',sans-serif;font-weight:700;">${m.title||m.label||m.id}</div>
+        <div>
+          <div class="group-title">${live?'● LIVE':fin?'Finished':'Upcoming'}</div>
         </div>
-        <div class="score-block">
-          ${fin
-            ? `<div class="score-nums"><span>${res.home}</span><span class="score-sep">–</span><span>${res.away}</span></div>`
-            : `<div class="score-vs">${live?'● LIVE':'vs'}</div>`}
-          <div class="score-date">${m.label?m.label+'<br>':''}${formatMatchDate(res.apiDate || m.date, res.apiTime || '')}</div>
-        </div>
-        <div class="team-cell right">
-          <span class="team-name${aw?' winner':''}">${at||m.away} ${at?getFlag(at):''}</span>
-          ${ap?`<span class="team-players">${ap}</span>`:''}
+      </div>
+      <div class="group-matches">
+        <div class="match-row${fin?' finished':''}${live?' live':''}">
+          <div class="team-cell">
+            <span class="team-name${hw?' winner':''}">${ht?getFlag(ht):''} ${ht||m.home}</span>
+            ${hp?`<span class="team-players">${hp}</span>`:''}
+          </div>
+          <div class="score-block">
+            ${fin
+              ? `<div class="score-nums"><span>${res.home}</span><span class="score-sep">–</span><span>${res.away}</span></div>`
+              : `<div class="score-vs">${live?'● LIVE':'vs'}</div>`}
+            <div class="score-date">${formatMatchDate(res.apiDate || m.date, res.apiTime || '')}</div>
+          </div>
+          <div class="team-cell right">
+            <span class="team-name${aw?' winner':''}">${at||m.away} ${at?getFlag(at):''}</span>
+            ${ap?`<span class="team-players">${ap}</span>`:''}
+          </div>
         </div>
       </div>
     `;
