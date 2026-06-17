@@ -823,7 +823,7 @@ function parseWebAppJSON(json) {
         winner: winner || (homeScore > awayScore ? homeTeam : awayScore > homeScore ? awayTeam : null),
         status: status,
         homeTeam: homeTeam, awayTeam: awayTeam,
-        apiDate: m.date || '',
+        apiDate: m.rawDate || m.date || '',
         apiTime: m.time || '',
       };
     }
@@ -883,7 +883,7 @@ function parseSheetCSV(csv) {
         winner: winner || (homeScore > awayScore ? homeTeam : awayScore > homeScore ? awayTeam : null),
         status: status,
         homeTeam: homeTeam, awayTeam: awayTeam,
-        apiDate: m.date || '',
+        apiDate: m.rawDate || m.date || '',
         apiTime: m.time || '',
       };
     }
@@ -1101,7 +1101,7 @@ function renderGroups() {
         </div>
         <div class="score-block">
           ${fin ? `<div class="score-nums"><span>${res.home}</span><span class="score-sep">–</span><span>${res.away}</span></div>` : `<div class="score-vs">vs</div>`}
-          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${res.apiDate || m.date}${res.apiTime ? ' · ' + res.apiTime : ''}</div>`}
+          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${formatMatchDate(res.apiDate || m.date, res.apiDate ? '' : '')}</div>`}
         </div>
         <div class="team-cell right">
           <span class="team-name${aw?' winner':''}">${m.away} ${getFlag(m.away)}</span>
@@ -1148,7 +1148,7 @@ function renderKnockout(fixtures, containerId) {
           ${fin?`<span class="bm-score">${res.away}</span>`:''}
         </div>
         ${ap?`<div class="bm-players">👤 ${ap}</div>`:''}
-        <div class="bm-meta">${m.label?m.label+' · ':''} ${live?'● LIVE · ':''} ${res.apiDate || m.date}${res.apiTime ? ' · ' + res.apiTime : ''}</div>
+        <div class="bm-meta">${m.label?m.label+' · ':''} ${live?'● LIVE · ':''} ${formatMatchDate(res.apiDate || m.date, '')}</div>
       </div>
     `;
     c.appendChild(div);
@@ -1276,6 +1276,22 @@ function renderTables() {
 
     grid.appendChild(card);
   });
+}
+
+
+function formatMatchDate(dateStr, timeStr) {
+  if (!dateStr) return '';
+  // If it's already formatted (e.g. "14 Jun 2026") just return it
+  if (dateStr.length < 15) return dateStr + (timeStr ? ' · ' + timeStr : '');
+  // Parse ISO date and format in BST
+  try {
+    const d = new Date(dateStr);
+    const day = d.toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'Europe/London'});
+    const time = d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'}) + ' BST';
+    return day + ' · ' + time;
+  } catch(e) {
+    return dateStr;
+  }
 }
 
 // ═══════════════════════════════════════════════════════
