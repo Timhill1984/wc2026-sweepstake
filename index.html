@@ -1101,7 +1101,7 @@ function renderGroups() {
         </div>
         <div class="score-block">
           ${fin ? `<div class="score-nums"><span>${res.home}</span><span class="score-sep">–</span><span>${res.away}</span></div>` : `<div class="score-vs">vs</div>`}
-          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${formatMatchDate(res.apiDate || m.date, res.apiTime || '')}</div>`}
+          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${formatMatchDate((res.apiDate && !res.apiDate.includes('T')) ? res.apiDate : m.date, res.apiTime || '')}</div>`}
         </div>
         <div class="team-cell right">
           <span class="team-name${aw?' winner':''}">${m.away} ${getFlag(m.away)}</span>
@@ -1280,9 +1280,10 @@ function renderTables() {
 
 
 function formatMatchDate(dateStr, timeStr) {
-  if (!dateStr) return '';
-  if (timeStr) return dateStr + '<br>' + timeStr;
-  return dateStr;
+  // dateStr = "14 Jun 2026", timeStr = "18:00 BST" — both from sheet
+  if (dateStr && timeStr) return dateStr + '<br>' + timeStr;
+  if (dateStr) return dateStr;
+  return '';
 }
 
 // ═══════════════════════════════════════════════════════
