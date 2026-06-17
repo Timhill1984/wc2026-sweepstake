@@ -1101,7 +1101,7 @@ function renderGroups() {
         </div>
         <div class="score-block">
           ${fin ? `<div class="score-nums"><span>${res.home}</span><span class="score-sep">–</span><span>${res.away}</span></div>` : `<div class="score-vs">vs</div>`}
-          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${formatMatchDate(res.apiDate || m.date, res.apiDate ? '' : '')}</div>`}
+          ${live ? `<div class="score-live">● LIVE</div>` : `<div class="score-date">${formatMatchDate(res.apiDate || m.date, res.apiTime || '')}</div>`}
         </div>
         <div class="team-cell right">
           <span class="team-name${aw?' winner':''}">${m.away} ${getFlag(m.away)}</span>
@@ -1281,17 +1281,8 @@ function renderTables() {
 
 function formatMatchDate(dateStr, timeStr) {
   if (!dateStr) return '';
-  // If it's already formatted (e.g. "14 Jun 2026") just return it
-  if (dateStr.length < 15) return dateStr + (timeStr ? ' · ' + timeStr : '');
-  // Parse ISO date and format in BST
-  try {
-    const d = new Date(dateStr);
-    const day = d.toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'Europe/London'});
-    const time = d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'}) + ' BST';
-    return day + ' · ' + time;
-  } catch(e) {
-    return dateStr;
-  }
+  if (timeStr) return dateStr + '<br>' + timeStr;
+  return dateStr;
 }
 
 // ═══════════════════════════════════════════════════════
