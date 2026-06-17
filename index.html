@@ -1138,9 +1138,6 @@ function renderKnockout(fixtures, containerId) {
     div.innerHTML = `
       <div class="group-header">
         <div class="group-letter" style="font-size:0.85rem;width:auto;padding-right:6px;font-family:'Inter',sans-serif;font-weight:700;">${m.title||m.label||m.id}</div>
-        <div>
-          <div class="group-title">${live?'● LIVE':fin?'Finished':'Upcoming'}</div>
-        </div>
       </div>
       <div class="group-matches">
         <div class="match-row${fin?' finished':''}${live?' live':''}">
