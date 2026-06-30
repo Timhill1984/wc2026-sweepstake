@@ -1029,6 +1029,23 @@ function findMatchId(stage, group, matchday, homeTeam, awayTeam) {
     }
   }
 
+  // Second pass: for fixtures with an unresolvable side (e.g. 3P- best-third-place
+  // slots, which require FIFA's Annex C combination mapping we don't replicate),
+  // match on whichever side IS resolvable — each resolvable team appears in only
+  // one Round-of-32/16 fixture, so this is unambiguous, and the API tells us who
+  // the actual opponent turned out to be.
+  for (const f of round.fixtures) {
+    if (state.results[f.id]) continue; // already filled
+    const resolvedHome = resolveTeam(f.home);
+    const resolvedAway = resolveTeam(f.away);
+    if (resolvedHome && !resolvedAway && (resolvedHome===homeTeam || resolvedHome===awayTeam)) {
+      return f.id;
+    }
+    if (resolvedAway && !resolvedHome && (resolvedAway===homeTeam || resolvedAway===awayTeam)) {
+      return f.id;
+    }
+  }
+
   // Fallback: if we already stored this exact team pairing under any fixture, reuse it
   for (const f of round.fixtures) {
     const res = state.results[f.id];
@@ -1143,9 +1160,11 @@ function resolveTeam(code) {
     const pos=parseInt(gm[1])-1; const grp=gm[2];
     return (state.standings[grp]||[])[pos]||null;
   }
-  // 3P-XXXXX = third place slot (teams TBD after group stage)
+  // 3P-XXXXX = best third-place slot. FIFA assigns these via Annex C, a
+  // 495-combination lookup table we don't replicate here. Instead,
+  // findMatchId() resolves these fixtures using the API's confirmed result
+  // matched against the fixture's resolvable home team (the group winner).
   if (code.startsWith('3P')) {
-    // These slots are resolved by the API — show as TBD until groups complete
     return null;
   }
   const wm = code.match(/^W(.+)$/);
