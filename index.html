@@ -803,6 +803,7 @@ async function fetchSheetData() {
 function parseWebAppJSON(json) {
   const matches = json.matches || [];
 
+  // PASS 1: store all group stage results and build standings first
   matches.forEach(m => {
     const homeTeam = normaliseTeamName(m.homeTeam);
     const awayTeam = normaliseTeamName(m.awayTeam);
@@ -814,8 +815,8 @@ function parseWebAppJSON(json) {
     const group = (m.group || '').replace('GROUP_','');
 
     if (!homeTeam || !awayTeam) return;
+    if (stage !== 'Group Stage') return;
 
-    // Find our internal match ID
     const matchId = findMatchId(stage, group, 0, homeTeam, awayTeam);
     if (matchId) {
       state.results[matchId] = {
@@ -828,9 +829,38 @@ function parseWebAppJSON(json) {
       };
     }
 
-    // Build standings from finished group matches
-    if (stage === 'Group Stage' && homeScore !== null) {
+    if (homeScore !== null) {
       updateGroupStandings(group, homeTeam, awayTeam, homeScore, awayScore);
+    }
+  });
+
+  // Build third-place rankings from standings before resolving knockout rounds
+  computeThirdPlaceRanking();
+
+  // PASS 2: now resolve and store knockout matches — standings are complete
+  matches.forEach(m => {
+    const homeTeam = normaliseTeamName(m.homeTeam);
+    const awayTeam = normaliseTeamName(m.awayTeam);
+    const homeScore = m.homeScore !== null && m.homeScore !== '' ? parseInt(m.homeScore) : null;
+    const awayScore = m.awayScore !== null && m.awayScore !== '' ? parseInt(m.awayScore) : null;
+    const winner = normaliseTeamName(m.winner);
+    const status = m.status || '';
+    const stage = m.stage || '';
+    const group = (m.group || '').replace('GROUP_','');
+
+    if (!homeTeam || !awayTeam) return;
+    if (stage === 'Group Stage') return;
+
+    const matchId = findMatchId(stage, group, 0, homeTeam, awayTeam);
+    if (matchId) {
+      state.results[matchId] = {
+        home: homeScore, away: awayScore,
+        winner: winner || (homeScore > awayScore ? homeTeam : awayScore > homeScore ? awayTeam : null),
+        status: status,
+        homeTeam: homeTeam, awayTeam: awayTeam,
+        apiDate: m.date || '',
+        apiTime: m.time || '',
+      };
     }
   });
 
@@ -1010,6 +1040,63 @@ function findMatchId(stage, group, matchday, homeTeam, awayTeam) {
   // Last resort: first fixture in this round with no result yet and unresolved teams
   const slot = round.fixtures.find(f => !state.results[f.id]);
   return slot ? slot.id : null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  THIRD PLACE RANKING — best 8 third-placed teams across all groups
+// ═══════════════════════════════════════════════════════
+function computeThirdPlaceRanking() {
+  const thirdPlaceCandidates = [];
+
+  Object.entries(GROUPS).forEach(([letter, group]) => {
+    const teams = group.teams;
+    const pts = {}; const gd = {}; const gf = {}; const played = {};
+    teams.forEach(t => { pts[t]=0; gd[t]=0; gf[t]=0; played[t]=0; });
+
+    group.matches.forEach(m => {
+      const r = state.results[m.id];
+      if (!r || r.home===null || r.home===undefined) return;
+      const h = r.homeTeam || m.home;
+      const a = r.awayTeam || m.away;
+      if (pts[h]===undefined || pts[a]===undefined) return;
+      played[h]++; played[a]++;
+      gf[h]+=r.home; gf[a]+=r.away;
+      gd[h]+=(r.home-r.away); gd[a]+=(r.away-r.home);
+      if (r.home>r.away) pts[h]+=3;
+      else if (r.away>r.home) pts[a]+=3;
+      else { pts[h]+=1; pts[a]+=1; }
+    });
+
+    // Only consider this group's standings complete if all 6 matches played
+    const allPlayed = group.matches.every(m => {
+      const r = state.results[m.id];
+      return r && r.home !== null && r.home !== undefined;
+    });
+    if (!allPlayed) return;
+
+    const sorted = teams.slice().sort((a,b)=>{
+      if (pts[b]!==pts[a]) return pts[b]-pts[a];
+      if (gd[b]!==gd[a]) return gd[b]-gd[a];
+      return gf[b]-gf[a];
+    });
+
+    const thirdTeam = sorted[2];
+    if (thirdTeam) {
+      thirdPlaceCandidates.push({
+        team: thirdTeam, group: letter,
+        pts: pts[thirdTeam], gd: gd[thirdTeam], gf: gf[thirdTeam]
+      });
+    }
+  });
+
+  // Rank all third-place teams against each other, take best 8
+  thirdPlaceCandidates.sort((a,b) => {
+    if (b.pts!==a.pts) return b.pts-a.pts;
+    if (b.gd!==a.gd) return b.gd-a.gd;
+    return b.gf-a.gf;
+  });
+
+  state.thirdPlace = thirdPlaceCandidates.slice(0,8).map(c => c.team);
 }
 
 // ═══════════════════════════════════════════════════════
