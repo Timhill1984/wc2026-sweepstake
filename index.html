@@ -977,27 +977,39 @@ function findMatchId(stage, group, matchday, homeTeam, awayTeam) {
     );
     return m ? m.id : null;
   }
-  // Knockout — derive from stored results by team name
-  for (const round of KO_ROUNDS) {
-    for (const f of round.fixtures) {
-      const res = state.results[f.id];
-      if (res && ((res.homeTeam===homeTeam&&res.awayTeam===awayTeam)||(res.homeTeam===awayTeam&&res.awayTeam===homeTeam))) {
+  // Knockout — resolve each fixture's qualifier codes against current standings
+  // and match against the team names the API just gave us
+  const stageRoundMap = {
+    'Round of 32': 'r32', 'Round of 16': 'r16',
+    'Quarter-Final': 'qf', 'Semi-Final': 'sf', 'Final': 'final'
+  };
+  const roundId = stageRoundMap[stage];
+  if (!roundId) return null;
+  const round = KO_ROUNDS.find(r => r.id === roundId);
+  if (!round) return null;
+
+  for (const f of round.fixtures) {
+    const resolvedHome = resolveTeam(f.home);
+    const resolvedAway = resolveTeam(f.away);
+    if (resolvedHome && resolvedAway) {
+      if ((resolvedHome===homeTeam && resolvedAway===awayTeam) ||
+          (resolvedHome===awayTeam && resolvedAway===homeTeam)) {
         return f.id;
       }
     }
   }
-  // Try matching by stage
-  const stageMatchMap = {'Round of 32':'R32','Round of 16':'R16','Quarter-Final':'QF','Semi-Final':'SF','Final':'F'};
-  const prefix = stageMatchMap[stage];
-  if (prefix) {
-    // Find first empty slot in this round
-    const round = KO_ROUNDS.find(r => r.fixtures.some(f => f.id.startsWith(prefix)));
-    if (round) {
-      const slot = round.fixtures.find(f => f.id.startsWith(prefix) && !state.results[f.id]);
-      return slot ? slot.id : null;
+
+  // Fallback: if we already stored this exact team pairing under any fixture, reuse it
+  for (const f of round.fixtures) {
+    const res = state.results[f.id];
+    if (res && ((res.homeTeam===homeTeam&&res.awayTeam===awayTeam)||(res.homeTeam===awayTeam&&res.awayTeam===homeTeam))) {
+      return f.id;
     }
   }
-  return null;
+
+  // Last resort: first fixture in this round with no result yet and unresolved teams
+  const slot = round.fixtures.find(f => !state.results[f.id]);
+  return slot ? slot.id : null;
 }
 
 // ═══════════════════════════════════════════════════════
