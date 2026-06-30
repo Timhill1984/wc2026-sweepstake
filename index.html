@@ -1241,9 +1241,13 @@ function renderKnockout(fixtures, containerId) {
   c.innerHTML = '';
 
   fixtures.forEach(m => {
-    const ht = resolveTeam(m.home);
-    const at = resolveTeam(m.away);
     const res = state.results[m.id]||{};
+    // Prefer the actual confirmed team names from the API result (handles
+    // 3P- best-third-place slots correctly, since Annex C isn't replicated
+    // here but the API tells us who actually played once it's known).
+    // Fall back to qualifier-code resolution for fixtures with no result yet.
+    const ht = res.homeTeam || resolveTeam(m.home);
+    const at = res.awayTeam || resolveTeam(m.away);
     const fin = res.home!==null && res.home!==undefined;
     const live= res.status==='IN_PLAY'||res.status==='PAUSED';
     const hw  = fin && res.home > res.away;
