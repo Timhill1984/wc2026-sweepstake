@@ -1054,9 +1054,8 @@ function findMatchId(stage, group, matchday, homeTeam, awayTeam) {
     }
   }
 
-  // Last resort: first fixture in this round with no result yet and unresolved teams
-  const slot = round.fixtures.find(f => !state.results[f.id]);
-  return slot ? slot.id : null;
+  // No match found — return null rather than guessing
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════
