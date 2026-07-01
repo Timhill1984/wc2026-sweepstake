@@ -739,7 +739,7 @@ const KO_ROUNDS = [
     {id:'SF2', home:'WQF3', away:'WQF4', date:'15 Jul', label:'SF2', title:'Semi-Final 2'},
   ]},
   {id:'final', label:'Final', fixtures:[
-    {id:'F1', home:'WSF1', away:'WSF2', date:'19 Jul', label:'Final', title:'The Final'},
+    {id:'FINAL', home:'WSF1', away:'WSF2', date:'19 Jul', label:'Final', title:'The Final'},
   ]},
 ];
 
@@ -853,7 +853,7 @@ function parseWebAppJSON(json) {
 
     const matchId = findMatchId(stage, group, 0, homeTeam, awayTeam);
     if (matchId) {
-      state.results[matchId] = {
+      const resultData = {
         home: homeScore, away: awayScore,
         winner: winner || (homeScore > awayScore ? homeTeam : awayScore > homeScore ? awayTeam : null),
         status: status,
@@ -861,6 +861,11 @@ function parseWebAppJSON(json) {
         apiDate: m.date || '',
         apiTime: m.time || '',
       };
+      state.results[matchId] = resultData;
+      // Also store under the sheet's own matchId so renderKnockout can find it
+      if (m.matchId && m.matchId !== matchId) {
+        state.results[m.matchId] = resultData;
+      }
     }
   });
 
